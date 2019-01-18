@@ -22,10 +22,10 @@ class Channels:
         self.is_locked = True
         self.task.start()
         self.task.wait_until_done(timeout=20.0)
-        self.task.stop()
 
     def _done_event(self, *args):
         self.is_locked = False
+        return 0
 
     def set_sample_rate(self, rate, source=''):
         try:

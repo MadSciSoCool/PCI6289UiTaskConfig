@@ -20,7 +20,6 @@ class AIChannels(Channels):
                                                          terminal_config=config['terminal_config'],
                                                          min_val=config['min_val'],
                                                          max_val=config['max_val'])
-        self.task.stop()
 
     def _setup_task(self, **kwargs):
         self.number_of_samples = kwargs['number_of_samples']
@@ -31,6 +30,7 @@ class AIChannels(Channels):
         self.ai_task.stop()
         process_ai_data(self.acquired_data)
         self.is_locked = False
+        return 0
 
     def _allocate(self):
         self.acquired_data = np.empty(shape=[self.number_of_channels, self.number_of_samples], dtype=float)

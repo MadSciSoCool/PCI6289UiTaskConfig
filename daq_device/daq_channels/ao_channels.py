@@ -12,8 +12,7 @@ class AOChannels(Channels):
             self.task.ao_channels.add_ao_func_gen_chan(physical_channel=channel_name,
                                                        type=config['type'],
                                                        freq=config['freq'],
-                                                       max_val=config['amplitude'])
-        self.task.stop()
+                                                       amplitude=config['amplitude'])
 
     def _setup_task(self, **kwargs):
         pass
