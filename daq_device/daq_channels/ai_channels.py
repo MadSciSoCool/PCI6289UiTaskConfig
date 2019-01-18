@@ -27,7 +27,7 @@ class AIChannels(Channels):
         reader = AnalogMultiChannelReader(self.task.in_stream)
         reader.read_many_sample(data=self.acquired_data, number_of_samples_per_channel=self.number_of_samples)
 
-    def _done_callback(self, *args):
+    def _done_event(self, *args):
         self.ai_task.stop()
         process_ai_data(self.acquired_data)
         self.is_locked = False

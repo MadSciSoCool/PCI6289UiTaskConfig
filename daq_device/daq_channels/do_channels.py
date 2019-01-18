@@ -15,6 +15,6 @@ class DOChannels(Channels):
         self.task.stop()
 
     def _setup_task(self, **kwargs):
-        writer = DigitalMultiChannelWriter(self.task.in_stream)
+        writer = DigitalMultiChannelWriter(self.task.out_stream)
         waveform = kwargs['waveform']
         writer.write_many_sample_port_uint32(data=waveform)

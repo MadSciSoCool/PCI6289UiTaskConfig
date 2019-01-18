@@ -24,7 +24,7 @@ class Channels:
         self.task.wait_until_done(timeout=20.0)
         self.task.stop()
 
-    def _done_callback(self, *args):
+    def _done_event(self, *args):
         self.is_locked = False
 
     def set_sample_rate(self, rate, source=''):
