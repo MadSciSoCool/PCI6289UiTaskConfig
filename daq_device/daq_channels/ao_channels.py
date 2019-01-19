@@ -13,8 +13,3 @@ class AOChannels(Channels):
                                                        type=config['type'],
                                                        freq=config['freq'],
                                                        amplitude=config['amplitude'])
-
-    def _setup_task(self, **kwargs):
-        pass
-
-

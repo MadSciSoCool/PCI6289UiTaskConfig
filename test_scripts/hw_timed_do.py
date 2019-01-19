@@ -9,6 +9,7 @@ def done_event(*args):
     print('measurement done')
     return 0
 
+
 def pulse(time):
     waveform = np.ones(time, dtype=np.uint32)
     waveform = np.append(waveform, np.uint32(0))
