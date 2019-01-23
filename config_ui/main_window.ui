@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>720</width>
-    <height>528</height>
+    <width>721</width>
+    <height>643</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,263 +16,611 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout_3">
     <item row="0" column="0" colspan="2">
-     <widget class="QGroupBox" name="groupBox">
+     <widget class="QGroupBox" name="analog_input_group">
       <property name="title">
        <string>Analog Input</string>
       </property>
       <layout class="QGridLayout" name="gridLayout">
-       <item row="0" column="1">
+       <item row="1" column="4" rowspan="2">
+        <widget class="QLabel" name="label_6">
+         <property name="text">
+          <string>Max Value/V</string>
+         </property>
+        </widget>
+       </item>
+       <item row="7" column="4" rowspan="2">
+        <widget class="QLabel" name="label_19">
+         <property name="text">
+          <string>5</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="4" rowspan="2">
+        <widget class="QLabel" name="label_18">
+         <property name="text">
+          <string>5</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="7" rowspan="2">
+        <widget class="QPushButton" name="pushButton_9">
+         <property name="text">
+          <string>Change</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="3" rowspan="2">
         <widget class="QLabel" name="label_5">
          <property name="text">
           <string>Terminal Mode</string>
          </property>
         </widget>
        </item>
-       <item row="0" column="2">
-        <widget class="QLabel" name="label_6">
+       <item row="3" column="5" rowspan="2">
+        <widget class="QPushButton" name="pushButton">
          <property name="text">
-          <string>Max Value</string>
+          <string>Change</string>
          </property>
         </widget>
        </item>
-       <item row="0" column="3">
-        <widget class="QLabel" name="label_7">
+       <item row="7" column="8" rowspan="2">
+        <widget class="QCheckBox" name="channel_switch_3">
          <property name="text">
-          <string>Min Value</string>
+          <string>Enabled</string>
          </property>
         </widget>
        </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="label">
+       <item row="3" column="6" rowspan="2">
+        <widget class="QLabel" name="label_23">
          <property name="text">
-          <string>Channel 1</string>
+          <string>-5</string>
          </property>
         </widget>
        </item>
-       <item row="1" column="1">
-        <widget class="QComboBox" name="comboBox"/>
-       </item>
-       <item row="1" column="2">
-        <widget class="QLineEdit" name="lineEdit"/>
-       </item>
-       <item row="1" column="3">
-        <widget class="QLineEdit" name="lineEdit_5"/>
-       </item>
-       <item row="1" column="4">
-        <widget class="QCheckBox" name="checkBox">
+       <item row="9" column="5" rowspan="2">
+        <widget class="QPushButton" name="pushButton_5">
          <property name="text">
-          <string/>
+          <string>Change</string>
          </property>
         </widget>
        </item>
-       <item row="2" column="0">
+       <item row="5" column="0" rowspan="2">
         <widget class="QLabel" name="label_2">
          <property name="text">
           <string>Channel 2</string>
          </property>
         </widget>
        </item>
-       <item row="2" column="1">
-        <widget class="QComboBox" name="comboBox_2"/>
-       </item>
-       <item row="2" column="2">
-        <widget class="QLineEdit" name="lineEdit_2"/>
-       </item>
-       <item row="2" column="3">
-        <widget class="QLineEdit" name="lineEdit_6"/>
-       </item>
-       <item row="2" column="4">
-        <widget class="QCheckBox" name="checkBox_2">
+       <item row="12" column="0">
+        <widget class="QLabel" name="label_8">
          <property name="text">
-          <string/>
+          <string>Sampling Rate/Hz</string>
          </property>
         </widget>
        </item>
-       <item row="3" column="0">
+       <item row="7" column="0" rowspan="2">
         <widget class="QLabel" name="label_3">
          <property name="text">
           <string>Channel 3</string>
          </property>
         </widget>
        </item>
-       <item row="3" column="1">
-        <widget class="QComboBox" name="comboBox_3"/>
-       </item>
-       <item row="3" column="2">
-        <widget class="QLineEdit" name="lineEdit_3"/>
-       </item>
-       <item row="3" column="3">
-        <widget class="QLineEdit" name="lineEdit_7"/>
-       </item>
-       <item row="3" column="4">
-        <widget class="QCheckBox" name="checkBox_3">
+       <item row="7" column="6" rowspan="2">
+        <widget class="QLabel" name="label_25">
          <property name="text">
-          <string/>
+          <string>-5</string>
          </property>
         </widget>
        </item>
-       <item row="4" column="0">
+       <item row="5" column="8" rowspan="2">
+        <widget class="QCheckBox" name="channel_switch_2">
+         <property name="text">
+          <string>Enabled</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0" rowspan="2">
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>Channel 1</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="7" rowspan="2">
+        <widget class="QPushButton" name="pushButton_8">
+         <property name="text">
+          <string>Change</string>
+         </property>
+        </widget>
+       </item>
+       <item row="7" column="7" rowspan="2">
+        <widget class="QPushButton" name="pushButton_10">
+         <property name="text">
+          <string>Change</string>
+         </property>
+        </widget>
+       </item>
+       <item row="7" column="3" rowspan="2">
+        <widget class="QComboBox" name="channel_mode_3">
+         <item>
+          <property name="text">
+           <string>RSE</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>NRSE</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>DIFFERENTIAL</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="12" column="7">
+        <widget class="QLabel" name="label_22">
+         <property name="text">
+          <string>100000</string>
+         </property>
+        </widget>
+       </item>
+       <item row="12" column="5" colspan="2">
+        <widget class="QLabel" name="label_9">
+         <property name="text">
+          <string>Samples per Channel</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="3" rowspan="2">
+        <widget class="QComboBox" name="channel_mode_2">
+         <item>
+          <property name="text">
+           <string>RSE</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>NRSE</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>DIFFERENTIAL</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="1" column="6" rowspan="2">
+        <widget class="QLabel" name="label_7">
+         <property name="text">
+          <string>Min Value/V</string>
+         </property>
+        </widget>
+       </item>
+       <item row="9" column="8" rowspan="2">
+        <widget class="QCheckBox" name="channel_switch_4">
+         <property name="text">
+          <string>Enabled</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="4" rowspan="2">
+        <widget class="QLabel" name="label_17">
+         <property name="text">
+          <string>5</string>
+         </property>
+        </widget>
+       </item>
+       <item row="7" column="5" rowspan="2">
+        <widget class="QPushButton" name="pushButton_4">
+         <property name="text">
+          <string>Change</string>
+         </property>
+        </widget>
+       </item>
+       <item row="9" column="0" rowspan="2">
         <widget class="QLabel" name="label_4">
          <property name="text">
           <string>Channel 4</string>
          </property>
         </widget>
        </item>
-       <item row="4" column="1">
-        <widget class="QComboBox" name="comboBox_4"/>
-       </item>
-       <item row="4" column="2">
-        <widget class="QLineEdit" name="lineEdit_4"/>
-       </item>
-       <item row="4" column="3">
-        <widget class="QLineEdit" name="lineEdit_8"/>
-       </item>
-       <item row="4" column="4">
-        <widget class="QCheckBox" name="checkBox_4">
+       <item row="12" column="4">
+        <widget class="QPushButton" name="pushButton_6">
          <property name="text">
-          <string/>
+          <string>Change</string>
          </property>
         </widget>
        </item>
-       <item row="5" column="0">
-        <widget class="QLabel" name="label_8">
+       <item row="12" column="8">
+        <widget class="QPushButton" name="pushButton_7">
          <property name="text">
-          <string>Sampling Rate</string>
+          <string>Change</string>
          </property>
         </widget>
        </item>
-       <item row="5" column="1">
-        <widget class="QLineEdit" name="lineEdit_9"/>
-       </item>
-       <item row="5" column="2">
-        <widget class="QLabel" name="label_9">
+       <item row="5" column="5" rowspan="2">
+        <widget class="QPushButton" name="pushButton_2">
          <property name="text">
-          <string>Number of Samples per Channel</string>
+          <string>Change</string>
          </property>
         </widget>
        </item>
-       <item row="5" column="3">
-        <widget class="QLineEdit" name="lineEdit_10"/>
+       <item row="12" column="3">
+        <widget class="QLabel" name="label_21">
+         <property name="text">
+          <string>1000</string>
+         </property>
+        </widget>
+       </item>
+       <item row="9" column="4" rowspan="2">
+        <widget class="QLabel" name="label_20">
+         <property name="text">
+          <string>5</string>
+         </property>
+        </widget>
+       </item>
+       <item row="9" column="7" rowspan="2">
+        <widget class="QPushButton" name="pushButton_11">
+         <property name="text">
+          <string>Change</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="3" rowspan="2">
+        <widget class="QComboBox" name="channel_mode_1">
+         <item>
+          <property name="text">
+           <string>RSE</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>NRSE</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>DIFFERENTIAL</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="5" column="6" rowspan="2">
+        <widget class="QLabel" name="label_24">
+         <property name="text">
+          <string>-5</string>
+         </property>
+        </widget>
+       </item>
+       <item row="9" column="3" rowspan="2">
+        <widget class="QComboBox" name="channel_mode_4">
+         <item>
+          <property name="text">
+           <string>RSE</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>NRSE</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>DIFFERENTIAL</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="9" column="6" rowspan="2">
+        <widget class="QLabel" name="label_26">
+         <property name="text">
+          <string>-5</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="8" rowspan="2">
+        <widget class="QCheckBox" name="channel_switch_1">
+         <property name="text">
+          <string>Enabled</string>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>
     </item>
     <item row="1" column="0" colspan="2">
-     <widget class="QGroupBox" name="groupBox_2">
+     <widget class="QGroupBox" name="analog_input_group_2">
       <property name="title">
-       <string>Analog Output</string>
+       <string>Analog Input</string>
       </property>
       <layout class="QGridLayout" name="gridLayout_2">
-       <item row="0" column="1">
-        <widget class="QLabel" name="label_14">
-         <property name="text">
-          <string>Type</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="2">
-        <widget class="QLabel" name="label_15">
-         <property name="text">
-          <string>Frequency</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="3">
-        <widget class="QLabel" name="label_16">
-         <property name="text">
-          <string>Amplitude</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0">
+       <item row="1" column="4" rowspan="2">
         <widget class="QLabel" name="label_10">
          <property name="text">
-          <string>Channel 1</string>
+          <string>Frequency/Hz</string>
          </property>
         </widget>
        </item>
-       <item row="1" column="1">
-        <widget class="QComboBox" name="comboBox_5"/>
-       </item>
-       <item row="1" column="2">
-        <widget class="QLineEdit" name="lineEdit_11"/>
-       </item>
-       <item row="1" column="3">
-        <widget class="QLineEdit" name="lineEdit_15"/>
-       </item>
-       <item row="1" column="4">
-        <widget class="QCheckBox" name="checkBox_5">
+       <item row="7" column="4" rowspan="2">
+        <widget class="QLabel" name="label_27">
          <property name="text">
-          <string/>
+          <string>1000</string>
          </property>
         </widget>
        </item>
-       <item row="2" column="0">
+       <item row="5" column="4" rowspan="2">
+        <widget class="QLabel" name="label_28">
+         <property name="text">
+          <string>1000</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="7" rowspan="2">
+        <widget class="QPushButton" name="pushButton_12">
+         <property name="text">
+          <string>Change</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="3" rowspan="2">
         <widget class="QLabel" name="label_11">
+         <property name="text">
+          <string>Waveform</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="5" rowspan="2">
+        <widget class="QPushButton" name="pushButton_13">
+         <property name="text">
+          <string>Change</string>
+         </property>
+        </widget>
+       </item>
+       <item row="7" column="8" rowspan="2">
+        <widget class="QCheckBox" name="channel_switch_5">
+         <property name="text">
+          <string>Enabled</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="6" rowspan="2">
+        <widget class="QLabel" name="label_29">
+         <property name="text">
+          <string>5</string>
+         </property>
+        </widget>
+       </item>
+       <item row="9" column="5" rowspan="2">
+        <widget class="QPushButton" name="pushButton_14">
+         <property name="text">
+          <string>Change</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="0" rowspan="2">
+        <widget class="QLabel" name="label_12">
          <property name="text">
           <string>Channel 2</string>
          </property>
         </widget>
        </item>
-       <item row="2" column="1">
-        <widget class="QComboBox" name="comboBox_6"/>
-       </item>
-       <item row="2" column="2">
-        <widget class="QLineEdit" name="lineEdit_12"/>
-       </item>
-       <item row="2" column="3">
-        <widget class="QLineEdit" name="lineEdit_16"/>
-       </item>
-       <item row="2" column="4">
-        <widget class="QCheckBox" name="checkBox_6">
-         <property name="text">
-          <string/>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="0">
-        <widget class="QLabel" name="label_12">
+       <item row="7" column="0" rowspan="2">
+        <widget class="QLabel" name="label_14">
          <property name="text">
           <string>Channel 3</string>
          </property>
         </widget>
        </item>
-       <item row="3" column="1">
-        <widget class="QComboBox" name="comboBox_7"/>
-       </item>
-       <item row="3" column="2">
-        <widget class="QLineEdit" name="lineEdit_13"/>
-       </item>
-       <item row="3" column="3">
-        <widget class="QLineEdit" name="lineEdit_17"/>
-       </item>
-       <item row="3" column="4">
-        <widget class="QCheckBox" name="checkBox_7">
+       <item row="7" column="6" rowspan="2">
+        <widget class="QLabel" name="label_30">
          <property name="text">
-          <string/>
+          <string>5</string>
          </property>
         </widget>
        </item>
-       <item row="4" column="0">
-        <widget class="QLabel" name="label_13">
+       <item row="5" column="8" rowspan="2">
+        <widget class="QCheckBox" name="channel_switch_6">
+         <property name="text">
+          <string>Enabled</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0" rowspan="2">
+        <widget class="QLabel" name="label_15">
+         <property name="text">
+          <string>Channel 1</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="7" rowspan="2">
+        <widget class="QPushButton" name="pushButton_15">
+         <property name="text">
+          <string>Change</string>
+         </property>
+        </widget>
+       </item>
+       <item row="7" column="7" rowspan="2">
+        <widget class="QPushButton" name="pushButton_16">
+         <property name="text">
+          <string>Change</string>
+         </property>
+        </widget>
+       </item>
+       <item row="7" column="3" rowspan="2">
+        <widget class="QComboBox" name="channel_mode_5">
+         <item>
+          <property name="text">
+           <string>SINE</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>SQUARE</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="12" column="7">
+        <widget class="QLabel" name="label_31">
+         <property name="text">
+          <string>10</string>
+         </property>
+        </widget>
+       </item>
+       <item row="12" column="5" colspan="2">
+        <widget class="QLabel" name="label_16">
+         <property name="text">
+          <string>Total Time/s</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="3" rowspan="2">
+        <widget class="QComboBox" name="channel_mode_6">
+         <item>
+          <property name="text">
+           <string>SINE</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>SQUARE</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="1" column="6" rowspan="2">
+        <widget class="QLabel" name="label_32">
+         <property name="text">
+          <string>Amplitude/V</string>
+         </property>
+        </widget>
+       </item>
+       <item row="9" column="8" rowspan="2">
+        <widget class="QCheckBox" name="channel_switch_7">
+         <property name="text">
+          <string>Enabled</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="4" rowspan="2">
+        <widget class="QLabel" name="label_33">
+         <property name="text">
+          <string>1000</string>
+         </property>
+        </widget>
+       </item>
+       <item row="7" column="5" rowspan="2">
+        <widget class="QPushButton" name="pushButton_17">
+         <property name="text">
+          <string>Change</string>
+         </property>
+        </widget>
+       </item>
+       <item row="9" column="0" rowspan="2">
+        <widget class="QLabel" name="label_34">
          <property name="text">
           <string>Channel 4</string>
          </property>
         </widget>
        </item>
-       <item row="4" column="1">
-        <widget class="QComboBox" name="comboBox_8"/>
-       </item>
-       <item row="4" column="2">
-        <widget class="QLineEdit" name="lineEdit_14"/>
-       </item>
-       <item row="4" column="3">
-        <widget class="QLineEdit" name="lineEdit_18"/>
-       </item>
-       <item row="4" column="4">
-        <widget class="QCheckBox" name="checkBox_8">
+       <item row="12" column="4">
+        <widget class="QPushButton" name="pushButton_18">
          <property name="text">
-          <string/>
+          <string>Change</string>
+         </property>
+        </widget>
+       </item>
+       <item row="12" column="8">
+        <widget class="QPushButton" name="pushButton_19">
+         <property name="text">
+          <string>Change</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="5" rowspan="2">
+        <widget class="QPushButton" name="pushButton_20">
+         <property name="text">
+          <string>Change</string>
+         </property>
+        </widget>
+       </item>
+       <item row="12" column="3">
+        <widget class="QLabel" name="label_35">
+         <property name="text">
+          <string>1000</string>
+         </property>
+        </widget>
+       </item>
+       <item row="9" column="4" rowspan="2">
+        <widget class="QLabel" name="label_36">
+         <property name="text">
+          <string>1000</string>
+         </property>
+        </widget>
+       </item>
+       <item row="9" column="7" rowspan="2">
+        <widget class="QPushButton" name="pushButton_21">
+         <property name="text">
+          <string>Change</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="3" rowspan="2">
+        <widget class="QComboBox" name="channel_mode_7">
+         <item>
+          <property name="text">
+           <string>SINE</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>SQUARE</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="5" column="6" rowspan="2">
+        <widget class="QLabel" name="label_37">
+         <property name="text">
+          <string>5</string>
+         </property>
+        </widget>
+       </item>
+       <item row="9" column="3" rowspan="2">
+        <widget class="QComboBox" name="channel_mode_8">
+         <item>
+          <property name="text">
+           <string>SINE</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>SQUARE</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="9" column="6" rowspan="2">
+        <widget class="QLabel" name="label_38">
+         <property name="text">
+          <string>5</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="8" rowspan="2">
+        <widget class="QCheckBox" name="channel_switch_8">
+         <property name="text">
+          <string>Enabled</string>
+         </property>
+        </widget>
+       </item>
+       <item row="12" column="0" colspan="2">
+        <widget class="QLabel" name="label_13">
+         <property name="text">
+          <string>Sampling Rate/Hz</string>
          </property>
         </widget>
        </item>
@@ -286,16 +634,15 @@
       </property>
       <layout class="QHBoxLayout" name="horizontalLayout">
        <item>
-        <widget class="QPushButton" name="pushButton_2">
-         <property name="text">
-          <string>Load Waveform</string>
-         </property>
-        </widget>
-       </item>
-       <item>
         <widget class="QCheckBox" name="checkBox_9">
          <property name="text">
-          <string>is Loaded</string>
+          <string>Digital Waveform is Loaded</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
          </property>
         </widget>
        </item>
@@ -316,8 +663,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>720</width>
-     <height>26</height>
+     <width>721</width>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuMenu">
@@ -328,6 +675,7 @@
     <addaction name="actionLoad_Configuration"/>
     <addaction name="separator"/>
     <addaction name="actionSelect_Working_Path"/>
+    <addaction name="actionLoad_Digital_Waveform"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -352,7 +700,7 @@
   </action>
   <action name="actionSelect_Working_Path">
    <property name="text">
-    <string>Select Working Path</string>
+    <string>Select Save Path</string>
    </property>
   </action>
   <action name="actionInfo">
@@ -363,6 +711,11 @@
   <action name="actionHelp">
    <property name="text">
     <string>Help</string>
+   </property>
+  </action>
+  <action name="actionLoad_Digital_Waveform">
+   <property name="text">
+    <string>Load Digital Waveform</string>
    </property>
   </action>
  </widget>
