@@ -14,9 +14,9 @@ class Channels:
         self._setup_channels(channels_config)
         self.task.register_done_event(self._done_event)
 
-    def start_task(self, **kwargs):
+    def start_task(self):
         self.is_locked = True
-        self._start(kwargs)
+        self._start()
 
     def close(self):
         self.task.close()
@@ -25,5 +25,5 @@ class Channels:
         self.is_locked = False
         return 0
 
-    def _start(self, **kwargs):
+    def _start(self):
         self.task.start()

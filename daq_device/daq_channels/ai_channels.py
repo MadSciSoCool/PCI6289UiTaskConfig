@@ -13,7 +13,6 @@ class AIChannels(Channels):
         self.acquired_data = np.empty(0, dtype=np.uint32)
 
     def _setup_channels(self, channels_config):  # channel_config is a dict of dict
-        self.number_of_channels = len(channels_config)
         for (channel_name, config) in channels_config.items():
             channel_name = self.device_name + channel_name
             self.task.ai_channels.add_ai_voltage_chan(physical_channel=channel_name,
@@ -29,15 +28,19 @@ class AIChannels(Channels):
         return 0
 
     @property
-    def number_of_samples(self):
-        return self._number_of_samples
+    def timing_configuration(self):
+        # timing configuration is a tuple as (sampling_rate, number_of_samples_per_channnel)
+        return self._timing_configuration
 
-    @number_of_samples.setter
-    def number_of_samples(self, value):
+    @timing_configuration.setter
+    def timing_configuration(self, value):
+        rate, samps_per_chan = value
         try:
-            self.task.timing.cfg_samp_clk_timing(rate=self.rate,
+            self.task.timing.cfg_samp_clk_timing(rate=rate,
                                                  sample_mode=AcquisitionType.FINITE,
-                                                 samps_per_chan=value)
-            self.acquired_data = np.empty([self.number_of_channels, value], dtype=np.uint32)
+                                                 samps_per_chan=samps_per_chan)
+            number_of_channels = self.task.number_of_channels
         except DaqError as error:
             print(error)
+        self.acquired_data = np.empty([number_of_channels, samps_per_chan], dtype=np.uint32)
+        self.timing_configuration = value
