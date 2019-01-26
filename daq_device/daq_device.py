@@ -15,6 +15,11 @@ class DaqDevice:
         self.ao_channels.start_task()
         self.do_channels.start_task()
 
+    def close(self):
+        self.ai_channels.close()
+        self.ao_channels.close()
+        self.do_channels.close()
+
     @property
     def is_locked(self):
         return self._is_locked
