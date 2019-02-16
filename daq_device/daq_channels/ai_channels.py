@@ -43,4 +43,4 @@ class AIChannels(Channels):
         except DaqError as error:
             print(error)
         self.acquired_data = np.empty([number_of_channels, samps_per_chan], dtype=np.uint32)
-        self.timing_configuration = value
+        self._timing_configuration = value

@@ -1,7 +1,7 @@
 import sys
 from PyQt5.QtWidgets import QWidget, QDialog, QApplication, QVBoxLayout, QHBoxLayout, QGroupBox, QDialogButtonBox
-from PyQt5 import QtCore
-from input_widget import DoubleInputWidget
+from PyQt5 import QtCore, QtWidgets
+from input_widget import IntegerInputWidget
 
 
 class DigitalWaveformInputWidget(QWidget):
@@ -24,10 +24,9 @@ class DigitalWaveformInputWidget(QWidget):
             for j in range(num_of_settings):
                 if j % 2 == 0:
                     name = "OFF TIME " + str(j // 2 + 1)
-                    group_box_layouts[i].addWidget(DoubleInputWidget(self, name, 0, "ms"))
                 else:
                     name = "ON TIME " + str(j // 2 + 1)
-                    group_box_layouts[i].addWidget(DoubleInputWidget(self, name, 0, "ms"))
+                group_box_layouts[i].addWidget(IntegerInputWidget(self, name, 0, "ms", 0, 1000, 1))
 
 
 class EditDigitalWaveformDialog(QDialog):
@@ -46,8 +45,9 @@ class EditDigitalWaveformDialog(QDialog):
         # button box on the right
         button_box = QDialogButtonBox(self)
         button_box.setOrientation(QtCore.Qt.Vertical)
-        button_box.addButton(QDialogButtonBox.Ok)
-        button_box.addButton(QDialogButtonBox.Cancel)
+        button_box.setStandardButtons(QtWidgets.QDialogButtonBox.Cancel | QtWidgets.QDialogButtonBox.Ok)
+        button_box.clicked.connect(self.accept)
+        button_box.rejected.connect(self.reject)
         main_layout.addWidget(button_box)
 
         self.setLayout(main_layout)
