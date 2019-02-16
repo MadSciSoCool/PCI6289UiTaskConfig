@@ -11,10 +11,11 @@ class MainWindow(QMainWindow):
         self.initUI()
 
     def initUI(self):
+        self.setWindowTitle("NIDAQ PCI-6289 Task Configuration Interface")
+
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
 
-        menubar = QMenuBar()
         central_layout = QVBoxLayout()
         central_widget.setLayout(central_layout)
 
