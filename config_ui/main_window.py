@@ -1,6 +1,7 @@
 import sys
 from PyQt5.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QGroupBox, QPushButton,
-                             QApplication, QMenuBar, QComboBox, QLabel, QCheckBox)
+                             QApplication, QAction, QComboBox, QLabel, QCheckBox, QFileDialog)
+from PyQt5.QtGui import QIcon
 from input_widget import NoTitleDoubleInputWidget, NoTitleIntegerInputWidget
 from edit_digital_waveform_dialog import EditDigitalWaveformDialog
 
@@ -13,12 +14,23 @@ class MainWindow(QMainWindow):
     def initUI(self):
         self.setWindowTitle("NIDAQ PCI-6289 Task Configuration Interface")
 
+        change_working_directory_act = QAction('Change Working Directory', self)
+        change_working_directory_act.setShortcut('Ctrl+C')
+        change_working_directory_act.setStatusTip("Change the directory of saving and loading files")
+        change_working_directory_act.triggered.connect(self.change_working_directory)
+
+        menubar = self.menuBar()
+        file_menu = menubar.addMenu("File")
+        help_menu = menubar.addMenu("Help")
+        file_menu.addAction(change_working_directory_act)
+
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
 
         central_layout = QVBoxLayout()
         central_widget.setLayout(central_layout)
 
+        # The Main Window is separated into 3 parts, AI widget, AO widget and DI widget
         ai_group = AnalogInputGroup()
         ao_group = AnalogOutputGroup()
         do_group = DigitalOutputGroup()
@@ -32,8 +44,9 @@ class MainWindow(QMainWindow):
 
         self.show()
 
+    def change_working_directory(self):
+        self.path = QFileDialog.getExistingDirectory()
 
-# The Main Window is separated into 3 parts, AI widget, AO widget and DI widget
 
 class AnalogInputGroup(QGroupBox):
     def __init__(self):
@@ -89,7 +102,7 @@ class AnalogOutputGroup(QGroupBox):
         for i in range(len(channels)):
             this_channel = channels[i]
             ao_layout.addWidget(QLabel(this_channel, self), i + 1, 0)
-            self.waveform[this_channel] = AIComboBox()
+            self.waveform[this_channel] = AOComboBox()
             self.frequency[this_channel] = NoTitleIntegerInputWidget(self, 100, "Hz", 0, 1000, 1)
             self.amplitude[this_channel] = NoTitleDoubleInputWidget(self, 5, "V", 0, 5, 2)
             self.terminal_status[this_channel] = TerminalStatusCheckbox()
