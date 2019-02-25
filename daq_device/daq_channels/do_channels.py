@@ -11,18 +11,19 @@ class DOChannels(Channels):
 
     def __init__(self, device_name):
         super().__init__(device_name)
+        self._setup_channels()
 
     def _setup_channels(self):
         number_of_lines = 6
         name_of_lines = self.device_name + "port0/line0:" + str(number_of_lines - 1)
-        self.task.do_channels.add_do_chan(line=name_of_lines, line_grouping=LineGrouping.CHAN_FOR_ALL_LINES)
+        self.task.do_channels.add_do_chan(lines=name_of_lines, line_grouping=LineGrouping.CHAN_FOR_ALL_LINES)
         self.writer = DigitalMultiChannelWriter(self.task.out_stream)
         self.virtual_task = nidaqmx.Task()
         name_of_virtual_channel = self.device_name + "ao0"
         self.virtual_task.ao_channels.add_ao_voltage_chan(name_of_virtual_channel)
 
-    def set_digital_waveform(self, digital_waveform):
-        self.samps_per_chan, self.waveform = digital_waveform_convert(digital_waveform)
+    def set_digital_waveform(self, digital_waveform, sampling_rate):
+        self.samps_per_chan, self.waveform = digital_waveform_convert(digital_waveform, sampling_rate)
 
     def _start(self, **kwargs):
         self.task.start()
@@ -36,8 +37,8 @@ class DOChannels(Channels):
     @timing_configuration.setter
     def timing_configuration(self, value):
         try:
-            source = self.device_name+"ao/SampleClock"
-            self.virtual_task.timing.cfg_samp_clk_timing(rate = value)
+            source = self.device_name + "ao/SampleClock"
+            self.virtual_task.timing.cfg_samp_clk_timing(rate=value)
             self.task.timing.cfg_samp_clk_timing(rate=value,
                                                  source=source,
                                                  sample_mode=AcquisitionType.FINITE,

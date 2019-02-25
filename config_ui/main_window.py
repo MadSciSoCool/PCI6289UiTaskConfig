@@ -54,8 +54,9 @@ class MainWindow(QMainWindow):
 
 
 class AnalogInputGroup(QGroupBox):
-    def __init__(self):
+    def __init__(self, daq_device):
         super().__init__("Analog Input")
+        self.daq_device = daq_device
         self.initUI()
 
     def initUI(self):
@@ -142,7 +143,8 @@ class DigitalOutputGroup(QGroupBox):
 
     def accepted_event(self):
         self.daq_device.do_channels.set_digital_waveform(
-            self.edit_digital_waveform_dialog.data_input_widget.get_digital_waveform())
+            self.edit_digital_waveform_dialog.data_input_widget.get_digital_waveform(),1000)
+        self.daq_device.do_channels.timing_configuration = 1000
 
 
 class AIComboBox(QComboBox):
@@ -177,9 +179,3 @@ class TerminalStatusCheckbox(QCheckBox):
 
     def state_change(self):
         self.is_enabled = self.isChecked()
-
-
-if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    test = MainWindow()
-    sys.exit(app.exec_())
