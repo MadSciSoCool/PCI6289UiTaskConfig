@@ -1,14 +1,14 @@
 import sys
 from PyQt5.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QGroupBox, QPushButton,
                              QApplication, QAction, QComboBox, QLabel, QCheckBox, QFileDialog)
-from PyQt5.QtGui import QIcon
-from input_widget import NoTitleDoubleInputWidget, NoTitleIntegerInputWidget
-from edit_digital_waveform_dialog import EditDigitalWaveformDialog
+from config_ui.input_widget import NoTitleDoubleInputWidget, NoTitleIntegerInputWidget
+from config_ui.edit_digital_waveform_dialog import EditDigitalWaveformDialog
 
 
 class MainWindow(QMainWindow):
-    def __init__(self):
+    def __init__(self, daq_device):
         super().__init__()
+        self.daq_device = daq_device
         self.initUI()
 
     def initUI(self):
@@ -31,21 +31,26 @@ class MainWindow(QMainWindow):
         central_widget.setLayout(central_layout)
 
         # The Main Window is separated into 3 parts, AI widget, AO widget and DI widget
+        # The AO widget is temporarily not used
         ai_group = AnalogInputGroup()
-        ao_group = AnalogOutputGroup()
-        do_group = DigitalOutputGroup()
+        # ao_group = AnalogOutputGroup()
+        do_group = DigitalOutputGroup(self.daq_device)
 
         central_layout.addWidget(ai_group)
-        central_layout.addWidget(ao_group)
+        # central_layout.addWidget(ao_group)
         central_layout.addWidget(do_group)
 
         start_button = QPushButton("Start Measurement", self)
+        start_button.clicked.connect(self.start_task)
         central_layout.addWidget(start_button)
 
         self.show()
 
     def change_working_directory(self):
         self.path = QFileDialog.getExistingDirectory()
+
+    def start_task(self):
+        self.daq_device.start_task()
 
 
 class AnalogInputGroup(QGroupBox):
@@ -119,8 +124,9 @@ class AnalogOutputGroup(QGroupBox):
 
 
 class DigitalOutputGroup(QGroupBox):
-    def __init__(self):
+    def __init__(self, daq_device):
         super().__init__("Digital Output")
+        self.daq_device = daq_device
         self.initUI()
 
     def initUI(self):
@@ -135,7 +141,8 @@ class DigitalOutputGroup(QGroupBox):
         self.edit_digital_waveform_dialog.accepted.connect(self.accepted_event)
 
     def accepted_event(self):
-        pass
+        self.daq_device.do_channels.set_digital_waveform(
+            self.edit_digital_waveform_dialog.data_input_widget.get_digital_waveform())
 
 
 class AIComboBox(QComboBox):

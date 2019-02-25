@@ -1,7 +1,7 @@
 import sys
 from PyQt5.QtWidgets import QWidget, QDialog, QApplication, QVBoxLayout, QHBoxLayout, QGroupBox, QDialogButtonBox
 from PyQt5 import QtCore, QtWidgets
-from input_widget import IntegerInputWidget
+from config_ui.input_widget import IntegerInputWidget
 
 
 class DigitalWaveformInputWidget(QWidget):
@@ -16,6 +16,7 @@ class DigitalWaveformInputWidget(QWidget):
         self.setLayout(main_layout)
         group_boxes = []
         group_box_layouts = []
+        self.input_widgets = [[] for i in range(num_of_lines)]
         for i in range(num_of_lines):
             group_boxes.append(QGroupBox("Line" + str(i)))
             group_box_layouts.append(QHBoxLayout())
@@ -26,7 +27,18 @@ class DigitalWaveformInputWidget(QWidget):
                     name = "OFF TIME " + str(j // 2 + 1)
                 else:
                     name = "ON TIME " + str(j // 2 + 1)
-                group_box_layouts[i].addWidget(IntegerInputWidget(self, name, 0, "ms", 0, 1000, 1))
+                self.input_widgets[i].append(IntegerInputWidget(self, name, 0, "ms", 0, 1000, 1))
+                group_box_layouts[i].addWidget(self.input_widgets[i][j])
+
+    def get_digital_waveform(self):
+        num_of_lines = 6
+        num_of_settings = 6
+        digital_waveform = [[] for i in range(num_of_lines)]
+        for i in range(num_of_lines):
+            for j in range(num_of_settings):
+                digital_waveform[i].append(self.input_widgets[i][j].value)
+        return digital_waveform
+
 
 
 class EditDigitalWaveformDialog(QDialog):
@@ -39,8 +51,8 @@ class EditDigitalWaveformDialog(QDialog):
         main_layout = QHBoxLayout()
 
         # data input widgets on the left
-        data_input_widget = DigitalWaveformInputWidget()
-        main_layout.addWidget(data_input_widget)
+        self.data_input_widget = DigitalWaveformInputWidget()
+        main_layout.addWidget(self.data_input_widget)
 
         # button box on the right
         button_box = QDialogButtonBox(self)

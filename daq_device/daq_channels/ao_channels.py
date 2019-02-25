@@ -8,7 +8,7 @@ from .analog_waveform import analog_waveform
 class AOChannels(Channels):
 
     def __init__(self, device_name):
-        super().__init__(self, device_name)
+        super().__init__(device_name)
 
     def _setup_channels(self, channels_config):  # channel_config is a dict of dict
         for (channel_name, config) in channels_config.items():

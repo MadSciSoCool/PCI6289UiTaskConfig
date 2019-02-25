@@ -9,7 +9,7 @@ from .channels import Channels
 class AIChannels(Channels):
 
     def __init__(self, device_name):
-        super().__init__(self, device_name)
+        super().__init__(device_name)
         self.acquired_data = np.empty(0, dtype=np.uint32)
 
     def _setup_channels(self, channels_config):  # channel_config is a dict of dict
@@ -24,7 +24,6 @@ class AIChannels(Channels):
     def _done_event(self, *args):
         self.reader.read_many_sample(data=self.acquired_data, number_of_samples_per_chan=READ_ALL_AVAILABLE)
         process_ai_data(self.acquired_data)
-        self.is_locked = False
         return 0
 
     @property
