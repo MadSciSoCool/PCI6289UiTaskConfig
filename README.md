@@ -1,2 +1,2 @@
 # PCI6289UiTaskConfig
-An interface to config and run task of NI PCI-6289
+An interface to configure and run tasks of NI PCI-6289
