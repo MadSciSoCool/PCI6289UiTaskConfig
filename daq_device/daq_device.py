@@ -12,10 +12,8 @@ class DaqDevice:
 
     def start_task(self):
         self.ai_channels.start_task()
-        # self.ao_channels.start_task()
         self.do_channels.start_task()
 
-    def close(self):
-        self.ai_channels.close()
-        # self.ao_channels.close()
-        self.do_channels.close()
+    def stop(self):
+        self.ai_channels.task.stop()
+        self.do_channels.hang()

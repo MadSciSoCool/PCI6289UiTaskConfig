@@ -32,17 +32,21 @@ class MainWindow(QMainWindow):
 
         # The Main Window is separated into 3 parts, AI widget, AO widget and DI widget
         # The AO widget is temporarily not used
-        ai_group = AnalogInputGroup()
+        self.ai_group = AnalogInputGroup(self.daq_device)
         # ao_group = AnalogOutputGroup()
-        do_group = DigitalOutputGroup(self.daq_device)
+        self.do_group = DigitalOutputGroup(self.daq_device)
 
-        central_layout.addWidget(ai_group)
+        central_layout.addWidget(self.ai_group)
         # central_layout.addWidget(ao_group)
-        central_layout.addWidget(do_group)
+        central_layout.addWidget(self.do_group)
 
         start_button = QPushButton("Start Measurement", self)
         start_button.clicked.connect(self.start_task)
+        stop_button = QPushButton("Stop Measurement", self)
+        stop_button.clicked.connect(self.stop_task)
+
         central_layout.addWidget(start_button)
+        central_layout.addWidget(stop_button)
 
         self.show()
 
@@ -50,8 +54,11 @@ class MainWindow(QMainWindow):
         self.path = QFileDialog.getExistingDirectory()
 
     def start_task(self):
+        self.ai_group.set_ai_channels()
         self.daq_device.start_task()
 
+    def stop_task(self):
+        self.daq_device.stop()
 
 class AnalogInputGroup(QGroupBox):
     def __init__(self, daq_device):
@@ -63,15 +70,15 @@ class AnalogInputGroup(QGroupBox):
         ai_layout = QGridLayout()
         self.setLayout(ai_layout)
         titles = ["", "Terminal Mode", "Max Value", "Min Value", "Channel Status"]
-        channels = ["Channel 1", "Channel 2", "Channel 3", "Channel 4"]
-        self.terminal_mode = {}
-        self.max_value = {}
-        self.min_value = {}
-        self.terminal_status = {}
+        self.channels_name = ["Channel 1", "Channel 2", "Channel 3", "Channel 4"]
+        self.terminal_mode = dict()
+        self.max_value = dict()
+        self.min_value = dict()
+        self.terminal_status = dict()
         for i in range(len(titles)):
             ai_layout.addWidget(QLabel(titles[i], self), 0, i)
-        for i in range(len(channels)):
-            this_channel = channels[i]
+        for i in range(len(self.channels_name)):
+            this_channel = self.channels_name[i]
             ai_layout.addWidget(QLabel(this_channel, self), i + 1, 0)
             self.terminal_mode[this_channel] = AIComboBox()
             self.max_value[this_channel] = NoTitleDoubleInputWidget(self, 5, "V", 0, 5, 2)
@@ -81,14 +88,38 @@ class AnalogInputGroup(QGroupBox):
             ai_layout.addWidget(self.max_value[this_channel], i + 1, 2)
             ai_layout.addWidget(self.min_value[this_channel], i + 1, 3)
             ai_layout.addWidget(self.terminal_status[this_channel], i + 1, 4)
-        ai_layout.addWidget(QLabel("Sampling Rate", self), len(channels) + 1, 0)
-        ai_layout.addWidget(QLabel("Samples Per Channel", self), len(channels) + 1, 2)
+        ai_layout.addWidget(QLabel("Sampling Rate", self), len(self.channels_name) + 1, 0)
+        ai_layout.addWidget(QLabel("Samples Per Channel", self), len(self.channels_name) + 1, 2)
         self.sampling_rate = NoTitleIntegerInputWidget(self, 1000, "Hz", 0, 500000, 100)
         self.samples_per_channel = NoTitleIntegerInputWidget(self, 10000, "", 0, 100000, 100)
-        ai_layout.addWidget(self.sampling_rate, len(channels) + 1, 1)
-        ai_layout.addWidget(self.samples_per_channel, len(channels) + 1, 3)
+        ai_layout.addWidget(self.sampling_rate, len(self.channels_name) + 1, 1)
+        ai_layout.addWidget(self.samples_per_channel, len(self.channels_name) + 1, 3)
+
+    def get_ai_cfg(self):
+        channels = ["ai0", "ai1", "ai2", "ai3"]
+        cfg = dict()
+        for i in range(len(channels)):
+            this_channel = channels[i]
+            this_name = self.channels_name[i]
+            this_cfg = dict()
+            this_cfg["terminal_mode"] = self.terminal_mode[this_name].value
+            this_cfg["max_value"] = self.max_value[this_name].value
+            this_cfg["min_value"] = self.min_value[this_name].value
+            this_cfg["terminal_status"] = self.terminal_status[this_name].value
+            cfg[this_channel] = this_cfg
+        return cfg
+
+    def get_ai_timing_cfg(self):
+        sampling_rate = self.sampling_rate.value
+        samples_per_channel = self.samples_per_channel.value
+        return (sampling_rate, samples_per_channel)
+
+    def set_ai_channels(self):
+        self.daq_device.ai_channels.rebuild_task(self.get_ai_cfg())
+        self.daq_device.ai_channels.timing_configuration = self.get_ai_timing_cfg()
 
 
+"""
 class AnalogOutputGroup(QGroupBox):
     def __init__(self):
         super().__init__("Analog Output")
@@ -122,6 +153,7 @@ class AnalogOutputGroup(QGroupBox):
         self.total_time = NoTitleDoubleInputWidget(self, 10, "s", 0, 10, 1)
         ao_layout.addWidget(self.sampling_rate, len(channels) + 1, 1)
         ao_layout.addWidget(self.total_time, len(channels) + 1, 3)
+"""
 
 
 class DigitalOutputGroup(QGroupBox):
@@ -143,7 +175,7 @@ class DigitalOutputGroup(QGroupBox):
 
     def accepted_event(self):
         self.daq_device.do_channels.set_digital_waveform(
-            self.edit_digital_waveform_dialog.data_input_widget.get_digital_waveform(),1000)
+            self.edit_digital_waveform_dialog.data_input_widget.get_digital_waveform(), 1000)
         self.daq_device.do_channels.timing_configuration = 1000
 
 
@@ -153,29 +185,32 @@ class AIComboBox(QComboBox):
         self.addItem("RSE")
         self.addItem("NRSE")
         self.addItem("DIFFERENTIAL")
-        self.terminal_mode = "RSE"
+        self.value = "RSE"
         self.activated[str].connect(self.save_mode)
 
     def save_mode(self, text):
-        self.terminal_mode = text
+        self.value = text
 
 
+"""
 class AOComboBox(QComboBox):
     def __init__(self):
         super().__init__()
         self.addItem("SINE")
         self.addItem("SQUARE")
-        self.terminal_mode = "SINE"
+        self.value = "SINE"
         self.activated[str].connect(self.save_mode)
 
     def save_mode(self, text):
-        self.terminal_mode = text
+        self.value = text
+"""
 
 
 class TerminalStatusCheckbox(QCheckBox):
     def __init__(self):
         super().__init__("Enabled")
+        self.value = False
         self.stateChanged.connect(self.state_change)
 
     def state_change(self):
-        self.is_enabled = self.isChecked()
+        self.value = self.isChecked()

@@ -40,7 +40,6 @@ class DigitalWaveformInputWidget(QWidget):
         return digital_waveform
 
 
-
 class EditDigitalWaveformDialog(QDialog):
     def __init__(self):
         super().__init__()
@@ -52,15 +51,24 @@ class EditDigitalWaveformDialog(QDialog):
 
         # data input widgets on the left
         self.data_input_widget = DigitalWaveformInputWidget()
+        side_widget = QWidget()
         main_layout.addWidget(self.data_input_widget)
+        main_layout.addWidget(side_widget)
 
+        side_layout = QVBoxLayout()
+        side_widget.setLayout(side_layout)
         # button box on the right
         button_box = QDialogButtonBox(self)
         button_box.setOrientation(QtCore.Qt.Vertical)
         button_box.setStandardButtons(QtWidgets.QDialogButtonBox.Cancel | QtWidgets.QDialogButtonBox.Ok)
         button_box.clicked.connect(self.accept)
         button_box.rejected.connect(self.reject)
-        main_layout.addWidget(button_box)
+
+        side_layout.addWidget(button_box)
+        self.period_time = IntegerInputWidget(self, "PERIOD TIME", 500, "ms", 0, 5000, 1)
+        self.number_of_period = IntegerInputWidget(self, "NUMBER OF PERIOD", 100, "", 0, 1000, 1)
+        side_layout.addWidget(self.period_time)
+        side_layout.addWidget(self.number_of_period)
 
         self.setLayout(main_layout)
         self.setWindowTitle("Edit Digital Waveform")

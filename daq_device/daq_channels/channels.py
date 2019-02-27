@@ -7,20 +7,14 @@ class Channels:
         self.device_name = device_name
         self.task = nidaqmx.Task()
 
-    def rebuild_task(self, channels_config):
-        self.task.close()
-        self.task = nidaqmx.Task()
-        self._setup_channels(channels_config)
-        self.task.register_done_event(self._done_event)
-
     def start_task(self):
-        self._start()
+        self.task.start()
 
     def close(self):
         self.task.close()
 
+    def hang(self):
+        self.task.stop()
+
     def _done_event(self, *args):
         return 0
-
-    def _start(self):
-        self.task.start()
