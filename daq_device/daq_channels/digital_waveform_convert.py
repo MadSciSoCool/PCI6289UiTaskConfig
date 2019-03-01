@@ -1,10 +1,14 @@
 import numpy as np
 
 
-def digital_waveform_convert(digital_waveform_configuration, sampling_rate):
+def digital_waveform_convert(digital_waveform_configuration, period, sampling_rate):
     number_of_lines = len(digital_waveform_configuration)
     maximum_length = max([sum(i) for i in digital_waveform_configuration])
-    total_points = int(sampling_rate * maximum_length / 1000)  # 1000 is for 1ms scale division
+    if maximum_length > period:
+        print("The given waveform is longer than the period")
+    total_points = int(sampling_rate * period / 1000)  # 1000 is for 1ms scale division
+    if total_points < 50:
+        return np.zeros(50, dtype=np.uint32)
     sampling_period = 1000 / sampling_rate  # 1000 is for 1ms scale division
     uint32_waveform = np.zeros(total_points, dtype=np.uint32)
     raw_waveform = np.empty([total_points, number_of_lines], dtype=bool)

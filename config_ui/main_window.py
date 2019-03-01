@@ -1,14 +1,22 @@
-import sys
+from enum import Enum
 from PyQt5.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QGroupBox, QPushButton,
                              QApplication, QAction, QComboBox, QLabel, QCheckBox, QFileDialog)
 from config_ui.input_widget import NoTitleDoubleInputWidget, NoTitleIntegerInputWidget
 from config_ui.edit_digital_waveform_dialog import EditDigitalWaveformDialog
 
 
+class Status(Enum):
+    is_started = 0
+    is_paused = 1
+    is_closed = 2
+    is_modified = 3
+
+
 class MainWindow(QMainWindow):
     def __init__(self, daq_device):
         super().__init__()
         self.daq_device = daq_device
+        self.status = Status.is_closed
         self.initUI()
 
     def initUI(self):
@@ -34,7 +42,7 @@ class MainWindow(QMainWindow):
         # The AO widget is temporarily not used
         self.ai_group = AnalogInputGroup(self.daq_device)
         # ao_group = AnalogOutputGroup()
-        self.do_group = DigitalOutputGroup(self.daq_device)
+        self.do_group = DigitalOutputGroup()
 
         central_layout.addWidget(self.ai_group)
         # central_layout.addWidget(ao_group)
@@ -48,17 +56,37 @@ class MainWindow(QMainWindow):
         central_layout.addWidget(start_button)
         central_layout.addWidget(stop_button)
 
+        self.do_group.edit_digital_waveform_dialog.accepted.connect(self.digital_output_accepted_event)
+
         self.show()
 
     def change_working_directory(self):
         self.path = QFileDialog.getExistingDirectory()
 
     def start_task(self):
-        self.ai_group.set_ai_channels()
-        self.daq_device.start_task()
+        if self.status == Status.is_closed or self.status == Status.is_modified:
+            self.ai_group.set_ai_channels()
+            self.daq_device.start_task()
+            self.status = Status.is_started
+        elif self.status == Status.is_paused:
+            self.daq_device.start_task()
+            self.status = Status.is_started
 
     def stop_task(self):
-        self.daq_device.stop()
+        if self.status == Status.is_started:
+            self.daq_device.stop_task()
+            self.status = Status.is_paused
+
+    def digital_output_accepted_event(self):
+        self.daq_device.stop_task()
+        self.do_group.edit_digital_waveform_dialog.hide()
+        digital_sampling_rate = 1000
+        self.daq_device.do_channels.set_digital_waveform(
+            self.do_group.edit_digital_waveform_dialog.data_input_widget.get_digital_waveform(),
+            self.do_group.edit_digital_waveform_dialog.period_time.value, digital_sampling_rate)
+        self.daq_device.do_channels.timing_configuration = digital_sampling_rate
+        self.status = Status.is_modified
+
 
 class AnalogInputGroup(QGroupBox):
     def __init__(self, daq_device):
@@ -119,6 +147,58 @@ class AnalogInputGroup(QGroupBox):
         self.daq_device.ai_channels.timing_configuration = self.get_ai_timing_cfg()
 
 
+class DigitalOutputGroup(QGroupBox):
+    def __init__(self):
+        super().__init__("Digital Output")
+        self.edit_digital_waveform_dialog = EditDigitalWaveformDialog()
+        self.initUI()
+
+    def initUI(self):
+        do_layout = QHBoxLayout()
+        self.setLayout(do_layout)
+        edit_button = QPushButton("Edit Digital Waveform")
+        do_layout.addWidget(edit_button)
+        edit_button.clicked.connect(self.edit_digital_waveform)
+
+    def edit_digital_waveform(self):
+        self.edit_digital_waveform_dialog.show()
+
+class AIComboBox(QComboBox):
+    def __init__(self):
+        super().__init__()
+        self.addItem("RSE")
+        self.addItem("NRSE")
+        self.addItem("DIFFERENTIAL")
+        self.value = "RSE"
+        self.activated[str].connect(self.save_mode)
+
+    def save_mode(self, text):
+        self.value = text
+
+
+class TerminalStatusCheckbox(QCheckBox):
+    def __init__(self):
+        super().__init__("Enabled")
+        self.value = False
+        self.stateChanged.connect(self.state_change)
+
+    def state_change(self):
+        self.value = self.isChecked()
+
+
+"""
+class AOComboBox(QComboBox):
+    def __init__(self):
+        super().__init__()
+        self.addItem("SINE")
+        self.addItem("SQUARE")
+        self.value = "SINE"
+        self.activated[str].connect(self.save_mode)
+
+    def save_mode(self, text):
+        self.value = text
+"""
+
 """
 class AnalogOutputGroup(QGroupBox):
     def __init__(self):
@@ -154,63 +234,3 @@ class AnalogOutputGroup(QGroupBox):
         ao_layout.addWidget(self.sampling_rate, len(channels) + 1, 1)
         ao_layout.addWidget(self.total_time, len(channels) + 1, 3)
 """
-
-
-class DigitalOutputGroup(QGroupBox):
-    def __init__(self, daq_device):
-        super().__init__("Digital Output")
-        self.daq_device = daq_device
-        self.initUI()
-
-    def initUI(self):
-        do_layout = QHBoxLayout()
-        self.setLayout(do_layout)
-        edit_button = QPushButton("Edit Digital Waveform")
-        do_layout.addWidget(edit_button)
-        edit_button.clicked.connect(self.edit_digital_waveform)
-
-    def edit_digital_waveform(self):
-        self.edit_digital_waveform_dialog = EditDigitalWaveformDialog()
-        self.edit_digital_waveform_dialog.accepted.connect(self.accepted_event)
-
-    def accepted_event(self):
-        self.daq_device.do_channels.set_digital_waveform(
-            self.edit_digital_waveform_dialog.data_input_widget.get_digital_waveform(), 1000)
-        self.daq_device.do_channels.timing_configuration = 1000
-
-
-class AIComboBox(QComboBox):
-    def __init__(self):
-        super().__init__()
-        self.addItem("RSE")
-        self.addItem("NRSE")
-        self.addItem("DIFFERENTIAL")
-        self.value = "RSE"
-        self.activated[str].connect(self.save_mode)
-
-    def save_mode(self, text):
-        self.value = text
-
-
-"""
-class AOComboBox(QComboBox):
-    def __init__(self):
-        super().__init__()
-        self.addItem("SINE")
-        self.addItem("SQUARE")
-        self.value = "SINE"
-        self.activated[str].connect(self.save_mode)
-
-    def save_mode(self, text):
-        self.value = text
-"""
-
-
-class TerminalStatusCheckbox(QCheckBox):
-    def __init__(self):
-        super().__init__("Enabled")
-        self.value = False
-        self.stateChanged.connect(self.state_change)
-
-    def state_change(self):
-        self.value = self.isChecked()

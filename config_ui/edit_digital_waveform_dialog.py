@@ -66,13 +66,10 @@ class EditDigitalWaveformDialog(QDialog):
 
         side_layout.addWidget(button_box)
         self.period_time = IntegerInputWidget(self, "PERIOD TIME", 500, "ms", 0, 5000, 1)
-        self.number_of_period = IntegerInputWidget(self, "NUMBER OF PERIOD", 100, "", 0, 1000, 1)
         side_layout.addWidget(self.period_time)
-        side_layout.addWidget(self.number_of_period)
 
         self.setLayout(main_layout)
         self.setWindowTitle("Edit Digital Waveform")
-        self.show()
 
 
 if __name__ == '__main__':

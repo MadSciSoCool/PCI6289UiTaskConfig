@@ -18,6 +18,8 @@ class DOChannels(Channels):
         self.virtual_task = nidaqmx.Task()
         name_of_virtual_channel = self.device_name + "ao0"
         self.virtual_task.ao_channels.add_ao_voltage_chan(name_of_virtual_channel)
+        self.virtual_task.timing.cfg_samp_clk_timing(1000)
+        self.virtual_task.start()
 
     def _setup_channels(self):
         self.waveform = np.zeros(50, dtype=np.uint32)
@@ -26,18 +28,13 @@ class DOChannels(Channels):
         self.task.out_stream.regen_mode = RegenerationMode.ALLOW_REGENERATION
         self.writer = DigitalSingleChannelWriter(self.task.out_stream, auto_start=False)
         self.timing_configuration = 1000
-        self.virtual_task.start()
 
-    def set_digital_waveform(self, digital_waveform, sampling_rate):
-        self.waveform = digital_waveform_convert(digital_waveform, sampling_rate)
+    def set_digital_waveform(self, digital_waveform, period, sampling_rate):
+        self.waveform = digital_waveform_convert(digital_waveform, period, sampling_rate)
 
     def start_task(self):
         self.writer.write_many_sample_port_uint32(self.waveform)
         self.task.start()
-
-    def hang(self):
-        self.writer.write_many_sample_port_uint32(np.zeros(50, dtype=np.uint32))
-        self.task.stop()
 
     @property
     def timing_configuration(self):
@@ -48,7 +45,9 @@ class DOChannels(Channels):
     def timing_configuration(self, value):
         try:
             source = "/" + self.device_name + "ao/SampleClock"
+            self.virtual_task.stop()
             self.virtual_task.timing.cfg_samp_clk_timing(rate=value)
+            self.virtual_task.start()
             self.task.timing.cfg_samp_clk_timing(rate=value,
                                                  source=source,
                                                  sample_mode=AcquisitionType.CONTINUOUS)

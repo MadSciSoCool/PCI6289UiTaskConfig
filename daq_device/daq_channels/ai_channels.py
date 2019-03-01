@@ -44,7 +44,6 @@ class AIChannels(Channels):
     def start_task(self):
         if self.is_active:
             self.task.start()
-            self.task.wait_until_done(10)
 
     @property
     def timing_configuration(self):
