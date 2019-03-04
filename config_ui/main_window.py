@@ -118,8 +118,8 @@ class AnalogInputGroup(QGroupBox):
             ai_layout.addWidget(self.terminal_status[this_channel], i + 1, 4)
         ai_layout.addWidget(QLabel("Sampling Rate", self), len(self.channels_name) + 1, 0)
         ai_layout.addWidget(QLabel("Samples Per Channel", self), len(self.channels_name) + 1, 2)
-        self.sampling_rate = NoTitleIntegerInputWidget(self, 1000, "Hz", 0, 500000, 100)
-        self.samples_per_channel = NoTitleIntegerInputWidget(self, 10000, "", 0, 100000, 100)
+        self.sampling_rate = NoTitleIntegerInputWidget(self, 500000, "Hz", 0, 500000, 100)
+        self.samples_per_channel = NoTitleIntegerInputWidget(self, 500000, "", 0, 500000, 100)
         ai_layout.addWidget(self.sampling_rate, len(self.channels_name) + 1, 1)
         ai_layout.addWidget(self.samples_per_channel, len(self.channels_name) + 1, 3)
 

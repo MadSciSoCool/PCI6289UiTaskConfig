@@ -11,7 +11,7 @@ class AIChannels(Channels):
 
     def __init__(self, device_name):
         super().__init__(device_name)
-        self.acquired_data = np.empty(0, dtype=np.uint32)
+        self.acquired_data = np.zeros(0, dtype=np.float64)
         self.is_active = False
 
     def rebuild_task(self, channels_config):
@@ -37,8 +37,10 @@ class AIChannels(Channels):
             self.is_active = True
 
     def _done_event(self, *args):
-        self.reader.read_many_sample(data=self.acquired_data, number_of_samples_per_chan=READ_ALL_AVAILABLE)
-        process_ai_data(self.acquired_data)
+        self.reader.read_many_sample(data=self.acquired_data, number_of_samples_per_channel=READ_ALL_AVAILABLE)
+        process_ai_data(acquired_data=self.acquired_data,
+                        file_path="",
+                        sampling_rate=self.timing_configuration[0])
         return 0
 
     def start_task(self):
@@ -61,5 +63,5 @@ class AIChannels(Channels):
                 number_of_channels = self.task.number_of_channels
             except DaqError as error:
                 print(error)
-            self.acquired_data = np.empty([number_of_channels, samps_per_chan], dtype=np.uint32)
+            self.acquired_data = np.zeros([number_of_channels, samps_per_chan], dtype=np.float64)
         self._timing_configuration = value
