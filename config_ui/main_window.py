@@ -1,8 +1,9 @@
 from enum import Enum
 from PyQt5.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QGroupBox, QPushButton,
-                             QApplication, QAction, QComboBox, QLabel, QCheckBox, QFileDialog)
-from config_ui.input_widget import NoTitleDoubleInputWidget, NoTitleIntegerInputWidget
-from config_ui.edit_digital_waveform_dialog import EditDigitalWaveformDialog
+                             QAction, QComboBox, QLabel, QCheckBox, QFileDialog)
+from .input_widget import NoTitleDoubleInputWidget, NoTitleIntegerInputWidget, IntegerInputWidget
+from .edit_digital_waveform_dialog import EditDigitalWaveformDialog
+from .edit_analog_waveform_dialog import EditAnalogWaveformDialog
 
 
 class Status(Enum):
@@ -38,41 +39,45 @@ class MainWindow(QMainWindow):
         central_layout = QVBoxLayout()
         central_widget.setLayout(central_layout)
 
-        # The Main Window is separated into 3 parts, AI widget, AO widget and DI widget
-        # The AO widget is temporarily not used
-        self.ai_group = AnalogInputGroup(self.daq_device)
-        # ao_group = AnalogOutputGroup()
+        # The Main Window is separated into 4 parts, AI widget, Output Settings, AO widget and DI widget
+        self.ai_group = AnalogInputGroup()
+        self.output_settings = OutputSettingsGroup()
+        self.ao_group = AnalogOutputGroup()
         self.do_group = DigitalOutputGroup()
-
+        # add the widgets to the main window layout
         central_layout.addWidget(self.ai_group)
-        # central_layout.addWidget(ao_group)
+        central_layout.addWidget(self.output_settings)
+        central_layout.addWidget(self.ao_group)
         central_layout.addWidget(self.do_group)
-
+        # define the buttons on the bottom
         start_button = QPushButton("Start Measurement", self)
-        start_button.clicked.connect(self.start_task)
         stop_button = QPushButton("Stop Measurement", self)
-        stop_button.clicked.connect(self.stop_task)
-
         central_layout.addWidget(start_button)
         central_layout.addWidget(stop_button)
-
+        # connenct all kinds of signals to their slot
+        start_button.clicked.connect(self.start_task_event)
+        stop_button.clicked.connect(self.stop_task_event)
         self.do_group.edit_digital_waveform_dialog.accepted.connect(self.digital_output_accepted_event)
-
+        self.ao_group.edit_analog_waveform_dialog.accepted.connect(self.analog_output_accepted_event)
         self.show()
+
+    def closeEvent(self, *args, **kwargs):
+        self.daq_device.close()
 
     def change_working_directory(self):
         self.path = QFileDialog.getExistingDirectory()
 
-    def start_task(self):
+    # define the events
+    def start_task_event(self):
         if self.status == Status.is_closed or self.status == Status.is_modified:
-            self.ai_group.set_ai_channels()
+            self.set_ai_channels()
             self.daq_device.start_task()
             self.status = Status.is_started
         elif self.status == Status.is_paused:
             self.daq_device.start_task()
             self.status = Status.is_started
 
-    def stop_task(self):
+    def stop_task_event(self):
         if self.status == Status.is_started:
             self.daq_device.stop_task()
             self.status = Status.is_paused
@@ -83,15 +88,31 @@ class MainWindow(QMainWindow):
         digital_sampling_rate = 1000
         self.daq_device.do_channels.set_digital_waveform(
             self.do_group.edit_digital_waveform_dialog.data_input_widget.get_digital_waveform(),
-            self.do_group.edit_digital_waveform_dialog.period_time.value, digital_sampling_rate)
+            self.output_settings.output_period.value,
+            self.output_settings.sampling_rate.value)
         self.daq_device.do_channels.timing_configuration = digital_sampling_rate
         self.status = Status.is_modified
 
+    def analog_output_accepted_event(self):
+        self.daq_device.stop_task()
+        self.ao_group.edit_analog_waveform_dialog.hide()
+        analog_sampling_rate = 1000
+        self.daq_device.ao_channels.set_analog_waveform(
+            self.ao_group.edit_analog_waveform_dialog.data_input_widget.get_analog_waveform(),
+            self.output_settings.output_period.value,
+            self.output_settings.sampling_rate.value)
+        self.daq_device.ao_channels.timing_configuration = analog_sampling_rate
+        self.status = Status.is_modified
+
+    # to set up the analog input channels
+    def set_ai_channels(self):
+        self.daq_device.ai_channels.rebuild_task(self.ai_group.get_ai_cfg())
+        self.daq_device.ai_channels.timing_configuration = self.ai_group.get_ai_timing_cfg()
+
 
 class AnalogInputGroup(QGroupBox):
-    def __init__(self, daq_device):
+    def __init__(self):
         super().__init__("Analog Input")
-        self.daq_device = daq_device
         self.initUI()
 
     def initUI(self):
@@ -142,10 +163,19 @@ class AnalogInputGroup(QGroupBox):
         samples_per_channel = self.samples_per_channel.value
         return (sampling_rate, samples_per_channel)
 
-    def set_ai_channels(self):
-        self.daq_device.ai_channels.rebuild_task(self.get_ai_cfg())
-        self.daq_device.ai_channels.timing_configuration = self.get_ai_timing_cfg()
+class OutputSettingsGroup(QGroupBox):
+    def __init__(self):
+        super().__init__("General Output Settings")
+        self.initUI()
 
+    def initUI(self):
+        layout = QHBoxLayout()
+        self.output_period = IntegerInputWidget(self, "PERIOD TIME", 1000, "ms", 0, 5000, 1)
+        self.sampling_rate = IntegerInputWidget(self, "SAMPLING RATE", 1000, "Hz", 100, 10000, 100)
+        layout.addWidget(self.output_period)
+        layout.addWidget(self.sampling_rate)
+        self.setLayout(layout)
+        self.show()
 
 class DigitalOutputGroup(QGroupBox):
     def __init__(self):
@@ -162,6 +192,24 @@ class DigitalOutputGroup(QGroupBox):
 
     def edit_digital_waveform(self):
         self.edit_digital_waveform_dialog.show()
+
+
+class AnalogOutputGroup(QGroupBox):
+    def __init__(self):
+        super().__init__("Analog Output")
+        self.edit_analog_waveform_dialog = EditAnalogWaveformDialog()
+        self.initUI()
+
+    def initUI(self):
+        do_layout = QHBoxLayout()
+        self.setLayout(do_layout)
+        edit_button = QPushButton("Edit Analog Waveform")
+        do_layout.addWidget(edit_button)
+        edit_button.clicked.connect(self.edit_analog_waveform)
+
+    def edit_analog_waveform(self):
+        self.edit_analog_waveform_dialog.show()
+
 
 class AIComboBox(QComboBox):
     def __init__(self):
@@ -184,53 +232,3 @@ class TerminalStatusCheckbox(QCheckBox):
 
     def state_change(self):
         self.value = self.isChecked()
-
-
-"""
-class AOComboBox(QComboBox):
-    def __init__(self):
-        super().__init__()
-        self.addItem("SINE")
-        self.addItem("SQUARE")
-        self.value = "SINE"
-        self.activated[str].connect(self.save_mode)
-
-    def save_mode(self, text):
-        self.value = text
-"""
-
-"""
-class AnalogOutputGroup(QGroupBox):
-    def __init__(self):
-        super().__init__("Analog Output")
-        self.initUI()
-
-    def initUI(self):
-        ao_layout = QGridLayout()
-        self.setLayout(ao_layout)
-        titles = ["", "Waveform", "Frequency", "Amplitude", "Channel Status"]
-        channels = ["Channel 1", "Channel 2", "Channel 3", "Channel 4"]
-        self.waveform = {}
-        self.frequency = {}
-        self.amplitude = {}
-        self.terminal_status = {}
-        for i in range(len(titles)):
-            ao_layout.addWidget(QLabel(titles[i], self), 0, i)
-        for i in range(len(channels)):
-            this_channel = channels[i]
-            ao_layout.addWidget(QLabel(this_channel, self), i + 1, 0)
-            self.waveform[this_channel] = AOComboBox()
-            self.frequency[this_channel] = NoTitleIntegerInputWidget(self, 100, "Hz", 0, 1000, 1)
-            self.amplitude[this_channel] = NoTitleDoubleInputWidget(self, 5, "V", 0, 5, 2)
-            self.terminal_status[this_channel] = TerminalStatusCheckbox()
-            ao_layout.addWidget(self.waveform[this_channel], i + 1, 1)
-            ao_layout.addWidget(self.frequency[this_channel], i + 1, 2)
-            ao_layout.addWidget(self.amplitude[this_channel], i + 1, 3)
-            ao_layout.addWidget(self.terminal_status[this_channel], i + 1, 4)
-        ao_layout.addWidget(QLabel("Sampling Rate", self), len(channels) + 1, 0)
-        ao_layout.addWidget(QLabel("Total Time", self), len(channels) + 1, 2)
-        self.sampling_rate = NoTitleIntegerInputWidget(self, 1000, "Hz", 0, 10000, 100)
-        self.total_time = NoTitleDoubleInputWidget(self, 10, "s", 0, 10, 1)
-        ao_layout.addWidget(self.sampling_rate, len(channels) + 1, 1)
-        ao_layout.addWidget(self.total_time, len(channels) + 1, 3)
-"""

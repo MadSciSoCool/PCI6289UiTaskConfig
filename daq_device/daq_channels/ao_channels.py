@@ -1,25 +1,32 @@
+import numpy as np
 from nidaqmx.stream_writers import AnalogMultiChannelWriter
-from nidaqmx.constants import AcquisitionType
+from nidaqmx.constants import AcquisitionType, RegenerationMode
 from nidaqmx.errors import DaqError
 from .channels import Channels
-from .analog_waveform import analog_waveform
+from .analog_waveform_convert import analog_waveform_convert
 
 
 class AOChannels(Channels):
 
     def __init__(self, device_name):
         super().__init__(device_name)
+        self._setup_channels()
 
-    def _setup_channels(self, channels_config):  # channel_config is a dict of dict
-        for (channel_name, config) in channels_config.items():
-            channel_name = self.device_name + channel_name
+    def _setup_channels(self):
+        number_of_channels = 2
+        self.waveform = np.zeros(50, dtype=np.float64)
+        for i in range(number_of_channels):
+            channel_name = self.device_name + "ao" + str(i)
             self.task.ao_channels.add_ao_voltage_chan(channel_name)
+        self.task.out_stream.regen_mode = RegenerationMode.ALLOW_REGENERATION
         self.writer = AnalogMultiChannelWriter(self.task.out_stream)
-        self.waveform = analog_waveform(channels_config, sample_rate=self.timing_configuration[0])
 
-    def _start(self):
-        self.task.start()
+    def set_analog_waveform(self, analog_waveform, period, sampling_rate):
+        self.waveform = analog_waveform_convert(analog_waveform, period, sampling_rate)
+
+    def start_task(self):
         self.writer.write_many_sample(self.waveform)
+        self.task.start()
 
     @property
     def timing_configuration(self):
@@ -28,11 +35,9 @@ class AOChannels(Channels):
 
     @timing_configuration.setter
     def timing_configuration(self, value):
-        rate, samps_per_chan = value
         try:
-            self.task.timing.cfg_samp_clk_timing(rate=rate,
-                                                 sample_mode=AcquisitionType.FINITE,
-                                                 samps_per_chan=samps_per_chan)
+            self.task.timing.cfg_samp_clk_timing(rate=value,
+                                                 sample_mode=AcquisitionType.CONTINUOUS)
         except DaqError as error:
             print(error)
         self._timing_configuration = value

@@ -16,7 +16,7 @@ class DOChannels(Channels):
 
     def _setup_virtual_task(self):
         self.virtual_task = nidaqmx.Task()
-        name_of_virtual_channel = self.device_name + "ao0"
+        name_of_virtual_channel = self.device_name + "ao2"
         self.virtual_task.ao_channels.add_ao_voltage_chan(name_of_virtual_channel)
         self.virtual_task.timing.cfg_samp_clk_timing(1000)
         self.virtual_task.start()
@@ -35,6 +35,10 @@ class DOChannels(Channels):
     def start_task(self):
         self.writer.write_many_sample_port_uint32(self.waveform)
         self.task.start()
+
+    def close(self):
+        self.task.close()
+        self.virtual_task.close()
 
     @property
     def timing_configuration(self):
