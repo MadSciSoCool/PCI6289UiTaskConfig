@@ -7,10 +7,16 @@ from .edit_analog_waveform_dialog import EditAnalogWaveformDialog
 
 
 class Status(Enum):
+    is_closed = -1
     is_started = 0
     is_paused = 1
-    is_closed = 2
-    is_modified = 3
+
+
+"""
+    is_closed: the task is not yet started or being setup
+    is_started: the task has already started and nothing is modified, can be stopped
+    is_paused: the task is temporarily stopped, can be started again
+"""
 
 
 class MainWindow(QMainWindow):
@@ -18,6 +24,7 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.daq_device = daq_device
         self.status = Status.is_closed
+        self.waveform_is_modified = False
         self.initUI()
 
     def initUI(self):
@@ -69,8 +76,20 @@ class MainWindow(QMainWindow):
 
     # define the events
     def start_task_event(self):
-        if self.status == Status.is_closed or self.status == Status.is_modified:
+        # if the output waveform is modified, first change the waveform
+        if self.waveform_is_modified:
+            self.daq_device.do_channels.set_digital_waveform(
+                self.do_group.edit_digital_waveform_dialog.data_input_widget.get_digital_waveform(),
+                self.output_settings.output_period.value,
+                self.output_settings.sampling_rate.value)
+            self.daq_device.ao_channels.set_analog_waveform(
+                self.ao_group.edit_analog_waveform_dialog.data_input_widget.get_analog_waveform(),
+                self.output_settings.output_period.value,
+                self.output_settings.sampling_rate.value)
+            self.waveform_is_modified = False
+        if self.status == Status.is_closed:
             self.set_ai_channels()
+            self.daq_device.set_output_sampling_rate(self.output_settings.sampling_rate.value)
             self.daq_device.start_task()
             self.status = Status.is_started
         elif self.status == Status.is_paused:
@@ -83,26 +102,12 @@ class MainWindow(QMainWindow):
             self.status = Status.is_paused
 
     def digital_output_accepted_event(self):
-        self.daq_device.stop_task()
         self.do_group.edit_digital_waveform_dialog.hide()
-        digital_sampling_rate = 1000
-        self.daq_device.do_channels.set_digital_waveform(
-            self.do_group.edit_digital_waveform_dialog.data_input_widget.get_digital_waveform(),
-            self.output_settings.output_period.value,
-            self.output_settings.sampling_rate.value)
-        self.daq_device.do_channels.timing_configuration = digital_sampling_rate
-        self.status = Status.is_modified
+        self.waveform_is_modified = True
 
     def analog_output_accepted_event(self):
-        self.daq_device.stop_task()
         self.ao_group.edit_analog_waveform_dialog.hide()
-        analog_sampling_rate = 1000
-        self.daq_device.ao_channels.set_analog_waveform(
-            self.ao_group.edit_analog_waveform_dialog.data_input_widget.get_analog_waveform(),
-            self.output_settings.output_period.value,
-            self.output_settings.sampling_rate.value)
-        self.daq_device.ao_channels.timing_configuration = analog_sampling_rate
-        self.status = Status.is_modified
+        self.waveform_is_modified = True
 
     # to set up the analog input channels
     def set_ai_channels(self):
@@ -163,6 +168,7 @@ class AnalogInputGroup(QGroupBox):
         samples_per_channel = self.samples_per_channel.value
         return (sampling_rate, samples_per_channel)
 
+
 class OutputSettingsGroup(QGroupBox):
     def __init__(self):
         super().__init__("General Output Settings")
@@ -176,6 +182,7 @@ class OutputSettingsGroup(QGroupBox):
         layout.addWidget(self.sampling_rate)
         self.setLayout(layout)
         self.show()
+
 
 class DigitalOutputGroup(QGroupBox):
     def __init__(self):
@@ -209,6 +216,15 @@ class AnalogOutputGroup(QGroupBox):
 
     def edit_analog_waveform(self):
         self.edit_analog_waveform_dialog.show()
+
+class DataProcessingGroup(QGroupBox):
+    def __init__(self):
+        super().__init__("Data Processing")
+        self.initUI()
+
+    def initUI(self):
+        layout = QGridLayout()
+
 
 
 class AIComboBox(QComboBox):

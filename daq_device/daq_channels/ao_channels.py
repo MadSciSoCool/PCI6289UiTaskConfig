@@ -14,7 +14,7 @@ class AOChannels(Channels):
 
     def _setup_channels(self):
         number_of_channels = 2
-        self.waveform = np.zeros(50, dtype=np.float64)
+        self.waveform = np.zeros([2, 50], dtype=np.float64)
         for i in range(number_of_channels):
             channel_name = self.device_name + "ao" + str(i)
             self.task.ao_channels.add_ao_voltage_chan(channel_name)

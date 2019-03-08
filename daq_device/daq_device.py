@@ -12,13 +12,17 @@ class DaqDevice:
 
     def start_task(self):
         self.ai_channels.start_task()
-        self.ao_channels.start_task()
         self.do_channels.start_task()
+        self.ao_channels.start_task()
 
     def stop_task(self):
         self.ai_channels.task.stop()
         self.ao_channels.task.stop()
         self.do_channels.task.stop()
+
+    def set_output_sampling_rate(self, value):
+        self.ao_channels.timing_configuration = value
+        self.do_channels.timing_configuration = value
 
     def close(self):
         self.ai_channels.close()

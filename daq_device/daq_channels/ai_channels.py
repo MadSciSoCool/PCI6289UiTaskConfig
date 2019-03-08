@@ -38,6 +38,7 @@ class AIChannels(Channels):
 
     def _done_event(self, *args):
         self.reader.read_many_sample(data=self.acquired_data, number_of_samples_per_channel=READ_ALL_AVAILABLE)
+        self.task.stop()
         process_ai_data(acquired_data=self.acquired_data,
                         file_path="",
                         sampling_rate=self.timing_configuration[0])
