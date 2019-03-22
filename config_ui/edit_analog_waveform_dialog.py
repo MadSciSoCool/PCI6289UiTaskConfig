@@ -1,6 +1,6 @@
-from PyQt5.QtWidgets import QWidget, QDialog, QLabel, QVBoxLayout, QHBoxLayout, QGroupBox, QDialogButtonBox
+from PyQt5.QtWidgets import QWidget, QDialog, QVBoxLayout, QHBoxLayout, QGroupBox, QDialogButtonBox
 from PyQt5 import QtCore, QtWidgets
-from config_ui.input_widget import IntegerInputWidget
+from config_ui.input_widget import IntegerInputWidget, DoubleInputWidget
 
 
 class AnalogWaveformInputWidget(QWidget):
@@ -15,7 +15,8 @@ class AnalogWaveformInputWidget(QWidget):
         self.setLayout(main_layout)
         group_boxes = []
         group_box_layouts = []
-        self.input_widgets = [[] for i in range(num_of_channels)]
+        self.time_input_widgets = [[] for i in range(num_of_channels)]
+        self.level_input_widgets = [[] for i in range(num_of_channels)]
         for i in range(num_of_channels):
             group_boxes.append(QGroupBox("Channel " + str(i)))
             group_box_layouts.append(QHBoxLayout())
@@ -26,17 +27,12 @@ class AnalogWaveformInputWidget(QWidget):
                     name = "OFF TIME " + str(j // 2 + 1)
                 else:
                     name = "ON TIME " + str(j // 2 + 1)
-                self.input_widgets[i].append(IntegerInputWidget(self, name, 0, "ms", 0, 1000, 1))
-                group_box_layouts[i].addWidget(self.input_widgets[i][j])
-
-    def get_analog_waveform(self):
-        num_of_channels = 2
-        num_of_settings = 6
-        analog_waveform = [[] for i in range(num_of_channels)]
-        for i in range(num_of_channels):
-            for j in range(num_of_settings):
-                analog_waveform[i].append(self.input_widgets[i][j].value)
-        return analog_waveform
+                self.time_input_widgets[i].append(IntegerInputWidget(self, name, 0, "ms", 0, 2000, 1))
+                group_box_layouts[i].addWidget(self.time_input_widgets[i][j])
+            self.level_input_widgets[i].append(DoubleInputWidget(self, "LOW", 0, "V", -20, 20, 2))
+            self.level_input_widgets[i].append(DoubleInputWidget(self, "HIGH", 5, "V", -20, 20, 2))
+            group_box_layouts[i].addWidget(self.level_input_widgets[i][0])
+            group_box_layouts[i].addWidget(self.level_input_widgets[i][1])
 
 
 class EditAnalogWaveformDialog(QDialog):

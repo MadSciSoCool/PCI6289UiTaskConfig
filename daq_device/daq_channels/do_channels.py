@@ -1,4 +1,3 @@
-import nidaqmx
 import numpy as np
 from nidaqmx.constants import AcquisitionType, RegenerationMode
 from nidaqmx.stream_writers import DigitalSingleChannelWriter

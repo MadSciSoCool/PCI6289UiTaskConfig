@@ -27,17 +27,8 @@ class DigitalWaveformInputWidget(QWidget):
                     name = "OFF TIME " + str(j // 2 + 1)
                 else:
                     name = "ON TIME " + str(j // 2 + 1)
-                self.input_widgets[i].append(IntegerInputWidget(self, name, 0, "ms", 0, 1000, 1))
+                self.input_widgets[i].append(IntegerInputWidget(self, name, 0, "ms", 0, 2000, 1))
                 group_box_layouts[i].addWidget(self.input_widgets[i][j])
-
-    def get_digital_waveform(self):
-        num_of_lines = 6
-        num_of_settings = 6
-        digital_waveform = [[] for i in range(num_of_lines)]
-        for i in range(num_of_lines):
-            for j in range(num_of_settings):
-                digital_waveform[i].append(self.input_widgets[i][j].value)
-        return digital_waveform
 
 
 class EditDigitalWaveformDialog(QDialog):
@@ -63,8 +54,3 @@ class EditDigitalWaveformDialog(QDialog):
         # set the window title
         self.setWindowTitle("Edit Digital Waveform")
 
-
-if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    test = EditDigitalWaveformDialog()
-    sys.exit(app.exec_())

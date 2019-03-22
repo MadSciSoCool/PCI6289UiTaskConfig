@@ -13,6 +13,9 @@ class AIChannels(Channels):
         super().__init__(device_name)
         self.acquired_data = np.zeros(0, dtype=np.float64)
         self.is_active = False
+        self.path = ""
+        self.max_frequency = -1
+        self.min_frequency = -1
 
     def rebuild_task(self, channels_config):
         self.task.close()
@@ -36,12 +39,19 @@ class AIChannels(Channels):
             self.reader = AnalogMultiChannelReader(self.task.in_stream)
             self.is_active = True
 
+    def set_data_processing_par(self, path, min_frequency, max_frequency):
+        self.path = path
+        self.min_frequency = min_frequency
+        self.max_frequency = max_frequency
+
     def _done_event(self, *args):
         self.reader.read_many_sample(data=self.acquired_data, number_of_samples_per_channel=READ_ALL_AVAILABLE)
         self.task.stop()
         process_ai_data(acquired_data=self.acquired_data,
-                        file_path="",
-                        sampling_rate=self.timing_configuration[0])
+                        file_path=self.path,
+                        sampling_rate=self.timing_configuration[0],
+                        max_freqency=self.max_frequency,
+                        min_frequency=self.min_frequency)
         return 0
 
     def start_task(self):
