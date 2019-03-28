@@ -101,13 +101,16 @@ class MainWindow(QMainWindow):
         settings["do"] = self.do_group.get_digital_waveform()
         settings["data"] = self.data_processing.get_data_processing_settings()
         path, suffix = QFileDialog.getSaveFileName(filter="*.pkl")
-        with open(path, "wb") as object:
-            pickle.dump(settings, object)
+        try:
+            with open(path, "wb") as object:
+                pickle.dump(settings, object)
+        except Exception:
+            pass
 
     def import_settings(self):
         path, suffix = QFileDialog.getOpenFileName(filter="*.pkl")
-        with open(path, "rb") as object:
-            try:
+        try:
+            with open(path, "rb") as object:
                 settings = pickle.load(object)
                 self.ai_group.set_ai_cfg(settings["ai"])
                 self.ai_group.set_ai_timing_cfg(settings["ai_timing"])
@@ -115,17 +118,22 @@ class MainWindow(QMainWindow):
                 self.ao_group.set_analog_waveform(settings["ao"])
                 self.do_group.set_digital_waveform(settings["do"])
                 self.data_processing.set_data_processing_settings(settings["data"])
-            except Exception as error:
-                print(error)
+        except Exception:
+            pass
 
     # define the widgets events
     def start_task_event(self):
         # change the data processing settings
-        min_frequency, max_frequency = self.data_processing.get_data_processing_settings()
+        min_frequency, max_frequency, fft_start, fft_end, enable_plot \
+            = self.data_processing.get_data_processing_settings()
         output_period, sampling_rate = self.output_settings.get_output_settings()
         self.daq_device.ai_channels.set_data_processing_par(self.path,
+                                                            output_period,
                                                             min_frequency,
-                                                            max_frequency)
+                                                            max_frequency,
+                                                            fft_start,
+                                                            fft_end,
+                                                            enable_plot)
         # if the output waveform is modified, first change the waveform
         if self.waveform_is_modified:
             self.daq_device.do_channels.set_digital_waveform(self.do_group.get_digital_waveform(),

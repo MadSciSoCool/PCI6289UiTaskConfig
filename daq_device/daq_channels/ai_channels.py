@@ -14,8 +14,13 @@ class AIChannels(Channels):
         self.acquired_data = np.zeros(0, dtype=np.float64)
         self.is_active = False
         self.path = ""
+        self.period_time = 1000
         self.max_frequency = -1
         self.min_frequency = -1
+        self.fft_start = -1
+        self.fft_end = -1
+        self.measurement_no = 1
+        self.enable_plot = False
 
     def rebuild_task(self, channels_config):
         self.task.close()
@@ -39,19 +44,29 @@ class AIChannels(Channels):
             self.reader = AnalogMultiChannelReader(self.task.in_stream)
             self.is_active = True
 
-    def set_data_processing_par(self, path, min_frequency, max_frequency):
+    def set_data_processing_par(self, path, period_time, min_frequency, max_frequency, fft_start, fft_end, enable_plot):
         self.path = path
+        self.period_time = period_time
         self.min_frequency = min_frequency
         self.max_frequency = max_frequency
+        self.fft_start = fft_start
+        self.fft_end = fft_end
+        self.enable_plot = enable_plot
 
     def _done_event(self, *args):
         self.reader.read_many_sample(data=self.acquired_data, number_of_samples_per_channel=READ_ALL_AVAILABLE)
         self.task.stop()
         process_ai_data(acquired_data=self.acquired_data,
                         file_path=self.path,
+                        period_time=self.period_time,
                         sampling_rate=self.timing_configuration[0],
-                        max_freqency=self.max_frequency,
-                        min_frequency=self.min_frequency)
+                        max_frequency=self.max_frequency,
+                        min_frequency=self.min_frequency,
+                        fft_start=self.fft_start,
+                        fft_end=self.fft_end,
+                        enable_plot=self.enable_plot,
+                        measurement_no=self.measurement_no)
+        self.measurement_no = self.measurement_no + 1
         return 0
 
     def start_task(self):
