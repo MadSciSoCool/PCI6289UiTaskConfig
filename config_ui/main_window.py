@@ -1,7 +1,7 @@
 import pickle
 import os
 from enum import Enum
-from PyQt5.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QPushButton, QAction, QFileDialog)
+from PyQt5.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QPushButton, QAction, QFileDialog, QMessageBox)
 from .analog_input_group import AnalogInputGroup
 from .output_group import OutputSettingsGroup, AnalogOutputGroup, DigitalOutputGroup
 from .data_processing_group import DataProcessingGroup
@@ -124,7 +124,7 @@ class MainWindow(QMainWindow):
     # define the widgets events
     def start_task_event(self):
         # change the data processing settings
-        min_frequency, max_frequency, fft_start, fft_end, enable_plot \
+        min_frequency, max_frequency, fft_start, fft_end, enable_plot, dif_mode, spliced \
             = self.data_processing.get_data_processing_settings()
         output_period, sampling_rate = self.output_settings.get_output_settings()
         self.daq_device.ai_channels.set_data_processing_par(self.path,
@@ -133,7 +133,9 @@ class MainWindow(QMainWindow):
                                                             max_frequency,
                                                             fft_start,
                                                             fft_end,
-                                                            enable_plot)
+                                                            enable_plot,
+                                                            dif_mode,
+                                                            spliced)
         # if the output waveform is modified, first change the waveform
         if self.waveform_is_modified:
             self.daq_device.do_channels.set_digital_waveform(self.do_group.get_digital_waveform(),
@@ -143,12 +145,9 @@ class MainWindow(QMainWindow):
                                                             output_period,
                                                             sampling_rate)
             self.waveform_is_modified = False
-        if self.status == Status.is_closed:
+        if self.status == Status.is_closed or Status.is_paused:
             self.set_ai_channels()
             self.daq_device.set_output_sampling_rate(sampling_rate)
-            self.daq_device.start_task()
-            self.status = Status.is_started
-        elif self.status == Status.is_paused:
             self.daq_device.start_task()
             self.status = Status.is_started
 

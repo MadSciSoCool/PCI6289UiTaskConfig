@@ -24,7 +24,7 @@ class AnalogInputGroup(QGroupBox):
             self.terminal_mode[this_channel] = AIComboBox()
             self.max_value[this_channel] = NoTitleDoubleInputWidget(self, 5, "V", 0, 5, 2)
             self.min_value[this_channel] = NoTitleDoubleInputWidget(self, -5, "V", -5, 0, 2)
-            self.terminal_status[this_channel] = TerminalStatusCheckbox()
+            self.terminal_status[this_channel] = QCheckBox("ENABLE", self)
             ai_layout.addWidget(self.terminal_mode[this_channel], i + 1, 1)
             ai_layout.addWidget(self.max_value[this_channel], i + 1, 2)
             ai_layout.addWidget(self.min_value[this_channel], i + 1, 3)
@@ -43,7 +43,7 @@ class AnalogInputGroup(QGroupBox):
             this_cfg["terminal_mode"] = self.terminal_mode[name].value
             this_cfg["max_value"] = self.max_value[name].value
             this_cfg["min_value"] = self.min_value[name].value
-            this_cfg["terminal_status"] = self.terminal_status[name].value
+            this_cfg["terminal_status"] = self.terminal_status[name].isChecked()
             cfg[name] = this_cfg
         return cfg
 
@@ -57,7 +57,7 @@ class AnalogInputGroup(QGroupBox):
             self.terminal_mode[key].set_value(value["terminal_mode"])
             self.max_value[key].set_value(value["max_value"])
             self.min_value[key].set_value(value["min_value"])
-            self.terminal_status[key].set_value(value["terminal_status"])
+            self.terminal_status[key].setChecked(value["terminal_status"])
 
     def set_ai_timing_cfg(self, cfg):
         sampling_rate, samples_per_channel = cfg
@@ -80,17 +80,3 @@ class AIComboBox(QComboBox):
     def set_value(self, value):
         self.value = value
         self.setCurrentText(value)
-
-
-class TerminalStatusCheckbox(QCheckBox):
-    def __init__(self):
-        super().__init__("Enabled")
-        self.value = False
-        self.stateChanged.connect(self.state_change)
-
-    def state_change(self):
-        self.value = self.isChecked()
-
-    def set_value(self, value):
-        self.value = value
-        self.setChecked(value)

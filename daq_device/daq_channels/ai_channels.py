@@ -44,7 +44,8 @@ class AIChannels(Channels):
             self.reader = AnalogMultiChannelReader(self.task.in_stream)
             self.is_active = True
 
-    def set_data_processing_par(self, path, period_time, min_frequency, max_frequency, fft_start, fft_end, enable_plot):
+    def set_data_processing_par(self, path, period_time, min_frequency, max_frequency, fft_start, fft_end, enable_plot,
+                                dif_mode, spliced):
         self.path = path
         self.period_time = period_time
         self.min_frequency = min_frequency
@@ -52,6 +53,8 @@ class AIChannels(Channels):
         self.fft_start = fft_start
         self.fft_end = fft_end
         self.enable_plot = enable_plot
+        self.dif_mode = dif_mode
+        self.spliced = spliced
 
     def _done_event(self, *args):
         self.reader.read_many_sample(data=self.acquired_data, number_of_samples_per_channel=READ_ALL_AVAILABLE)
@@ -65,7 +68,9 @@ class AIChannels(Channels):
                         fft_start=self.fft_start,
                         fft_end=self.fft_end,
                         enable_plot=self.enable_plot,
-                        measurement_no=self.measurement_no)
+                        measurement_no=self.measurement_no,
+                        dif_mode=self.dif_mode,
+                        spliced=self.spliced)
         self.measurement_no = self.measurement_no + 1
         return 0
 
