@@ -33,11 +33,11 @@ def noise_recognition(acquired_data, resolution, threshold):
                     selected_periods_this_channel.append(columns)
                 break
         selected_periods.append(selected_periods_this_channel)
-    return [[(selected_periods[i][j], selected_periods[i][j + 1]) for j in range(len(selected_periods[i]) // 2)]
+    return [[(selected_periods[i][2 * j], selected_periods[i][2 * j + 1]) for j in range(len(selected_periods[i]) // 2)]
             for i in range(len(selected_periods))]
 
 
 if __name__ == "__main__":
-    file_path = r"C:\Users\LYClab\Desktop\2015-4-15\measurement3\ai_acquired_data.csv"
+    file_path = r"C:\Users\LYClab\Desktop\2015-4-15\measurement2\ai_acquired_data.csv"
     data = np.loadtxt(file_path, delimiter=",")
-    print(noise_recognition(acquired_data=data.T, resolution=500, threshold=0.3))
+    print(noise_recognition(acquired_data=data.T, resolution=2000, threshold=0.3))

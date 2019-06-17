@@ -19,4 +19,5 @@ def data_process(output_path, mode, path, key, resolution, vpp_threshold, length
             measurement.process(is_spliced)
             measurement.output_data(output_mode, subpath)
             measurement.plot(output_mode, subpath, auto, left, right)
+            measurement.log_to_txt(subpath)
     print("Processing Done!")

@@ -1,4 +1,5 @@
 import os
+import time
 import numpy as np
 from enum import Enum
 from .spectrum_analyze import spectrum_analyze, splice_data
@@ -15,10 +16,11 @@ class Channel:
         self.data = data
         self.spectrums = []
 
-    def process(self, sampling_rate, is_spliced, processing_periods, single_period_length):
+    def process(self, sampling_period, is_spliced, processing_periods, single_period_length):
         if is_spliced:
-            self.spectrums.append(spectrum_analyze(label="Joined Spectrum/dBm",
-                                                   sampling_rate=sampling_rate,
+            self.spectrums.append(spectrum_analyze(period="Joined",
+                                                   channel=self.channel_name,
+                                                   sampling_period=sampling_period,
                                                    data=splice_data(self.data, processing_periods)))
         else:
             i = 0
@@ -28,8 +30,9 @@ class Channel:
                 length = end - start
                 if length < single_period_length:
                     data_this_period = np.append(data_this_period, np.zeros(single_period_length - length))
-                self.spectrums.append(spectrum_analyze(label="Spectrum Period " + str(i) + "/dBm",
-                                                       sampling_rate=sampling_rate,
+                self.spectrums.append(spectrum_analyze(period="Period " + str(i),
+                                                       channel=self.channel_name,
+                                                       sampling_period=sampling_period,
                                                        data=data_this_period))
                 i = i + 1
 
@@ -43,6 +46,7 @@ class ProcessingStatus(Enum):
 
 class Measurement:
     def __init__(self, path, measurement_name):
+        self.path = path
         self.read_from_file(path)
         self.measurement_name = measurement_name
         self.channels = []
@@ -59,59 +63,64 @@ class Measurement:
 
     def separate_channels(self):
         i = 0
-        self.sampling_rate = 1. / (self.data[0][1] - self.data[0][0])
+        self.sampling_period = self.data[0][1] - self.data[0][0]
+        self.sampling_rate = 1. / self.sampling_period
         for channel_data in self.data[1:]:
             self.channels.append(Channel(measurement_name=self.measurement_name,
-                                         channel_name="Channel" + str(i),
+                                         channel_name="Channel " + str(i),
                                          data=channel_data))
+            i = i + 1
 
     def add_differential_channel(self, dif1, dif2):
         if dif1 < len(self.channels) and dif2 < len(self.channels):
             self.channels.append(Channel(measurement_name=self.measurement_name,
-                                         channel_name="Differential_Channel_" + str(dif2) + "-" + str(dif1),
+                                         channel_name="Differential Channel " + str(dif2) + "-" + str(dif1),
                                          data=self.channels[dif2].data - self.channels[dif1].data))
 
     def select_periods(self, resolution, vpp_threshold, length_threshold):
         self.selected_periods = noise_recognition(self.data, resolution, vpp_threshold)
         self.selected_periods = periods_filter(self.selected_periods, length_threshold)
+        if len(self.selected_periods) == 0:
+            self.status = ProcessingStatus.NO_AVAILABLE_PERIODS
 
     def process(self, is_spliced):
         if self.status == ProcessingStatus.DATA_READ_FROM_FILE:
             period_length = [period[1] - period[0] for period in self.selected_periods]
             single_period_length = max(period_length)
             total_length = sum(period_length)
-            delta_t = self.data[0][1] - self.data[0][0]
             if is_spliced:
-                self.rfft_freq = np.fft.rfftfreq(total_length, delta_t)
+                self.rfft_freq = np.fft.rfftfreq(total_length, self.sampling_period)
                 self.num_of_spectrums = 1
             else:
-                self.rfft_freq = np.fft.rfftfreq(single_period_length, delta_t)
+                self.rfft_freq = np.fft.rfftfreq(single_period_length, self.sampling_period)
                 self.num_of_spectrums = len(self.selected_periods)
             for channel in self.channels:
-                channel.process(sampling_rate=self.sampling_rate,
+                channel.process(sampling_period=self.sampling_period,
                                 is_spliced=is_spliced,
                                 processing_periods=self.selected_periods,
                                 single_period_length=single_period_length)
             self.status = ProcessingStatus.PROCESSED
 
-    def output_data(self, mode, output_path):
+    def output_data(self, output_mode, output_path):
         if self.status == ProcessingStatus.PROCESSED:
-            if mode == "single_spectrum" or mode == "contrast_periods":
+            if output_mode == "single_spectrum" or "contrast_periods":
                 for channel in self.channels:
                     save_spectrums(file_path=os.path.join(output_path, (channel.channel_name + ".csv")),
                                    rfft_freq=self.rfft_freq,
-                                   spectrums=channel.spectrums)
-            elif mode == "contrast_channels":
+                                   spectrums=channel.spectrums,
+                                   output_mode=output_mode)
+            elif output_mode == "contrast_channels":
                 i = 0
                 for period in range(self.num_of_spectrums):
-                    save_spectrums(file_path=os.path.join(output_path, ("period_" + str(i) + ".csv")),
+                    save_spectrums(file_path=os.path.join(output_path, ("Period " + str(i) + ".csv")),
                                    rfft_freq=self.rfft_freq,
-                                   spectrums=[channel.spectrums[i] for channel in self.channels])
+                                   spectrums=[channel.spectrums[i] for channel in self.channels],
+                                   output_mode=output_mode)
                     i = i + 1
 
-    def plot(self, mode, output_path, auto, left, right):
+    def plot(self, output_mode, output_path, auto, left, right):
         if self.status == ProcessingStatus.PROCESSED:
-            if mode == "contrast_periods":
+            if output_mode == "contrast_periods":
                 for channel in self.channels:
                     plot_spectrums(file_path=os.path.join(output_path, (channel.channel_name + ".png")),
                                    auto=auto,
@@ -119,15 +128,34 @@ class Measurement:
                                    right=right,
                                    title=channel.channel_name,
                                    rfft_freq=self.rfft_freq,
-                                   spectrums=channel.spectrums)
-            elif mode == "contrast_channels":
+                                   spectrums=channel.spectrums,
+                                   output_mode=output_mode)
+            elif output_mode == "contrast_channels":
                 i = 0
                 for period in range(self.num_of_spectrums):
                     plot_spectrums(file_path=os.path.join(output_path, ("period_" + str(i) + ".png")),
                                    auto=auto,
                                    left=left,
                                    right=right,
-                                   title="period_" + str(i),
+                                   title="Period" + str(i),
                                    rfft_freq=self.rfft_freq,
-                                   spectrums=[channel.spectrums[i] for channel in self.channels])
+                                   spectrums=[channel.spectrums[i] for channel in self.channels],
+                                   output_mode=output_mode)
                     i = i + 1
+
+    def log_to_txt(self, path):
+        path = os.path.join(path, "log.txt")
+        selected_periods_in_time = [(str(period[0] * self.sampling_period) + "s",
+                                     str(period[1] * self.sampling_period) + "s")
+                                    for period in self.selected_periods]
+        if self.status == ProcessingStatus.NO_AVAILABLE_PERIODS:
+            selected_periods_in_time = "No Available Periods"
+        logtext = [self.measurement_name,
+                   "Original File in:",
+                   self.path,
+                   time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()),
+                   "Processing Period =" + str(selected_periods_in_time),
+                   "Sampling Period = " + str(self.sampling_period) + "s",
+                   "Sampling Rate = " + str(int(self.sampling_rate)) + "Hz"]
+        with open(path, "w") as file:
+            file.writelines([line + "\n" for line in logtext])

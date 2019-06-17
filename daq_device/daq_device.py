@@ -10,13 +10,11 @@ class DaqDevice:
         self.ao_channels = AOChannels(device_name=device_name)
         self.do_channels = DOChannels(device_name=device_name)
 
-    def start_task(self):
-        self.ai_channels.start_task()
+    def start_output(self):
         self.do_channels.start_task()
         self.ao_channels.start_task()
 
-    def stop_task(self):
-        self.ai_channels.task.stop()
+    def stop_output(self):
         self.ao_channels.task.stop()
         self.do_channels.task.stop()
 
