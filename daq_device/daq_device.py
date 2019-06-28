@@ -27,3 +27,4 @@ class DaqDevice:
         self.ao_channels.close()
         self.do_channels.close()
 
+

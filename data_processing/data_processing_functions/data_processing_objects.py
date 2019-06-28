@@ -10,8 +10,7 @@ from .plot_spectrums import plot_spectrums
 
 
 class Channel:
-    def __init__(self, measurement_name, channel_name, data):
-        self.measeurement_name = measurement_name
+    def __init__(self, channel_name, data):
         self.channel_name = channel_name
         self.data = data
         self.spectrums = []
@@ -45,10 +44,9 @@ class ProcessingStatus(Enum):
 
 
 class Measurement:
-    def __init__(self, path, measurement_name):
+    def __init__(self, path):
         self.path = path
         self.read_from_file(path)
-        self.measurement_name = measurement_name
         self.channels = []
         self.selected_periods = []
         if self.status == ProcessingStatus.DATA_READ_FROM_FILE:
@@ -66,15 +64,13 @@ class Measurement:
         self.sampling_period = self.data[0][1] - self.data[0][0]
         self.sampling_rate = 1. / self.sampling_period
         for channel_data in self.data[1:]:
-            self.channels.append(Channel(measurement_name=self.measurement_name,
-                                         channel_name="Channel " + str(i),
+            self.channels.append(Channel(channel_name="Channel " + str(i),
                                          data=channel_data))
             i = i + 1
 
     def add_differential_channel(self, dif1, dif2):
         if dif1 < len(self.channels) and dif2 < len(self.channels):
-            self.channels.append(Channel(measurement_name=self.measurement_name,
-                                         channel_name="Differential Channel " + str(dif2) + "-" + str(dif1),
+            self.channels.append(Channel(channel_name="Differential Channel " + str(dif2) + "-" + str(dif1),
                                          data=self.channels[dif2].data - self.channels[dif1].data))
 
     def select_periods(self, resolution, vpp_threshold, length_threshold):
@@ -150,8 +146,7 @@ class Measurement:
                                     for period in self.selected_periods]
         if self.status == ProcessingStatus.NO_AVAILABLE_PERIODS:
             selected_periods_in_time = "No Available Periods"
-        logtext = [self.measurement_name,
-                   "Original File in:",
+        logtext = ["Original File in:",
                    self.path,
                    time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()),
                    "Processing Period =" + str(selected_periods_in_time),

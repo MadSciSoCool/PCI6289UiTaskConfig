@@ -1,6 +1,7 @@
 import numpy as np
 import nidaqmx
 import os
+import re
 import time
 from nidaqmx.stream_readers import AnalogMultiChannelReader
 from nidaqmx.constants import READ_ALL_AVAILABLE, AcquisitionType, TerminalConfiguration
@@ -15,8 +16,11 @@ class AIChannels(Channels):
         super().__init__(device_name)
         self.acquired_data = np.zeros(0, dtype=np.float64)
         self.is_active = False
-        self.output_path = ""
         self.measurement_no = 1
+        self.set_output_path("")
+
+    def add_signal(self, complete_signal):
+        self.complete_signal = complete_signal
 
     def rebuild_task(self, channels_config):
         self.task.close()
@@ -42,12 +46,18 @@ class AIChannels(Channels):
             self.is_active = True
 
     def set_output_path(self, path):
-        self.output_path = os.path.join(path, time.strftime("%Y-%m-%d[%H-%M-%S]", time.localtime()))
-        self.measurement_no = 1
-        try:
-            os.mkdir(self.output_path)
-        except FileExistsError:
-            pass
+        self.output_path = os.path.join(path, time.strftime("[%Y-%m-%d]", time.localtime()))
+        self.load_existing_files()
+
+    def load_existing_files(self):
+        patt = "(ai_acquired_data_)([1-9][0-9]*)(.csv)"
+        existing_no = 0
+        if os.path.isdir(self.output_path):
+            for item in os.listdir(self.output_path):
+                match = re.search(patt, item)
+                if match is not None:
+                    existing_no = max(existing_no, int(match.group(2)))
+        self.measurement_no = existing_no + 1
 
     def _done_event(self, *args):
         self.reader.read_many_sample(data=self.acquired_data, number_of_samples_per_channel=READ_ALL_AVAILABLE)
@@ -57,6 +67,7 @@ class AIChannels(Channels):
                      sampling_rate=self.timing_configuration[0],
                      measurement_no=self.measurement_no)
         self.measurement_no = self.measurement_no + 1
+        self.complete_signal.measurement_completed.emit()
         return 0
 
     def start_task(self):

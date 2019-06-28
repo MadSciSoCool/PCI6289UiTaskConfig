@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QGroupBox, QGridLayout, QLabel, QComboBox, QCheckBox
-from .input_widget import NoTitleDoubleInputWidget, NoTitleIntegerInputWidget
+from .input_widget import NoTitleIntegerInputWidget
 
 
 class AnalogInputGroup(QGroupBox):
@@ -55,7 +55,7 @@ class AnalogInputGroup(QGroupBox):
     def set_ai_cfg(self, cfg):
         for key, value in cfg.items():
             self.terminal_mode[key].setCurrentText(value["terminal_mode"])
-            self.max_value[key].setCurrentText(value["range"])
+            self.range[key].setCurrentText(value["range"])
             self.terminal_status[key].setChecked(value["terminal_status"])
 
     def set_ai_timing_cfg(self, cfg):

@@ -3,7 +3,6 @@ import os
 
 
 def save_ai_data(acquired_data, file_path, measurement_no, sampling_rate):
-    file_path = os.path.join(file_path, "measurement" + str(measurement_no))
     try:
         os.mkdir(file_path)
     except FileExistsError:
@@ -15,7 +14,7 @@ def save_ai_data(acquired_data, file_path, measurement_no, sampling_rate):
     time_axis = np.array([i / sampling_rate for i in range(num_of_samples)])
     original_output_data = np.vstack((time_axis, acquired_data)).T
     header = ["time/s"] + ["ai" + str(i) + "/V" for i in range(num_of_channels)]
-    np.savetxt(os.path.join(file_path, "ai_acquired_data.csv"),
+    np.savetxt(os.path.join(file_path, "ai_acquired_data_" + str(measurement_no) + ".csv"),
                delimiter=",",
                header=",".join(header),
                X=original_output_data)
